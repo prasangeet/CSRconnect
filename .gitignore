@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# Django stuff
+db.sqlite3
+*.log
+media/
+staticfiles/
+local_settings.py
+
+# Migrations (optional - you might want to commit these)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# VS Code
+.vscode/
+
+# JetBrains (PyCharm, WebStorm)
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
