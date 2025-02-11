@@ -21,5 +21,6 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
-    path('', views.home, name='home')  # Include user-related endpoints
+    path('', views.home, name='home'), # Include user-related endpoints
+    path('api/classification/', include('classification.urls')),
 ]

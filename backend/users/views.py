@@ -37,7 +37,7 @@ class UserLoginView(views.APIView):
                 'access': str(refresh.access_token),
             }, status=status.HTTP_200_OK)
         
-        logger.error(f"Invalid login attempt for email: {email}")
+        logger.error(f"Invalid login attempt for email: {username}")
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
     
 class UserDetailsView(views.APIView):
