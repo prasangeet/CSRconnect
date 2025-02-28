@@ -59,12 +59,6 @@ function Register() {
     setSuccessMessage("");
 
     try {
-      //check if pass are the same
-      if (formData.password !== formData.password2) {
-        setErrorMessage("Passwords do not match");
-        return;
-      }
-
       const response = await axios.post(
         "http://127.0.0.1:8000/api/users/register/",
         formData,
@@ -137,21 +131,6 @@ function Register() {
           <div>
             <label htmlFor="password" className="block text-sm font-medium">
               Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium">
-              Confirm Password
             </label>
             <input
               type="password"
