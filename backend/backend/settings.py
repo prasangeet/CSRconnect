@@ -66,9 +66,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies & authentication headers
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = ["*"]
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:3000",  # Next.js local dev
 ]
+
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -118,7 +126,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'csr_connect_db',
         'USER': 'postgres',
-        'PASSWORD': 'Oggy6767$',
+        'PASSWORD': 'ppd12345',
         'HOST': 'localhost',
         'PORT': '5432',
     }

@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from .pdf_parser import extract_pdf_table_to_csv
 from .gemini_service import classify_sdg_with_gemini
+from .models import SDGClassification
+from django.http import JsonResponse
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser])
@@ -20,3 +22,8 @@ def upload_pdf(request):
     sdg_results = classify_sdg_with_gemini(csv_path)
 
     return Response({"classifications": sdg_results})
+
+
+def get_sdg_classification(request):
+    classifications = SDGClassification.objects.all().values()  # Convert QuerySet to list of dicts
+    return JsonResponse(list(classifications), safe=False)

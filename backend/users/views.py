@@ -47,4 +47,9 @@ class UserDetailsView(views.APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+        }, status=status.HTTP_200_OK)
+

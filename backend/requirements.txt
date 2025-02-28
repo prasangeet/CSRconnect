@@ -1,0 +1,34 @@
+# Django & Core Dependencies
+Django>=4.2
+djangorestframework>=3.14
+psycopg2-binary>=2.9  # PostgreSQL Adapter
+django-cors-headers>=4.3  # Handle CORS issues
+django-environ>=0.11.2  # Environment variables
+
+# Google Gemini AI SDK
+google-generativeai>=0.5.0
+google-api-core>=2.17.1
+
+# Data Processing
+pandas>=2.1
+openpyxl>=3.1  # Excel file handling
+pdfplumber>=0.10  # PDF parsing
+
+# Security & Authentication
+djangorestframework-simplejwt>=5.3  # JWT Authentication
+PyJWT>=2.8
+
+# Utilities
+requests>=2.31
+python-dotenv>=1.0.1  # Load .env files
+
+# LLM-related Dependencies
+transformers>=4.38  # If using Hugging Face models for RAG
+torch>=2.2  # If deep learning models are needed
+sentence-transformers>=2.2  # For embedding-based search (optional)
+
+# Async & Caching (Optional)
+celery>=5.3  # Background tasks
+redis>=5.0  # Caching for performance
+
+# Frontend Dependencies (For Next.js - if needed in package.json)
