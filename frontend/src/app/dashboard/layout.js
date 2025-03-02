@@ -22,7 +22,11 @@ export default function DashboardLayout({ children }) {
   }, []);
 
   if (!isClient) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   // Convert pathname to breadcrumb format
@@ -32,7 +36,7 @@ export default function DashboardLayout({ children }) {
     <div className="flex h-screen w-full">
       <SidebarProvider>
         <AppSidebar />
-        <div className="flex flex-col w-full h-full overflow-y-auto bg-[#FFEBEB]">
+        <div className="flex flex-col w-full h-full overflow-y-auto bg-[#fff6f3]">
           {/* Header Section */}
           <header className="flex items-center px-6 py-3 w-full">
             {/* Sidebar Trigger */}
