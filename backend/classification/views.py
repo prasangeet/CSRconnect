@@ -5,6 +5,7 @@ from .pdf_parser import extract_pdf_table_to_csv
 from .gemini_service import classify_sdg_with_gemini
 from .models import SDGClassification
 from django.http import JsonResponse
+from .serializers import SDGClassificationSerializer
 
 @api_view(["POST"])
 @parser_classes([MultiPartParser])
@@ -27,3 +28,10 @@ def upload_pdf(request):
 def get_sdg_classification(request):
     classifications = SDGClassification.objects.all().values()  # Convert QuerySet to list of dicts
     return JsonResponse(list(classifications), safe=False)
+
+@api_view(["GET"])
+def get_sdg_classified_data(request, sdg_number):
+    """Fetch all projects classified under a specific SDG"""
+    classifications = SDGClassification.objects.filter(sdg_number=sdg_number)
+    serializer = SDGClassificationSerializer(classifications, many=True)
+    return JsonResponse(serializer.data, safe=False)
