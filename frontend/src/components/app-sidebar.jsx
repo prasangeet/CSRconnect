@@ -14,11 +14,12 @@ import NavMain from "./nav-main";
 import { useRouter } from "next/navigation";
 import { NavUser } from "./nav-user";
 
-const { Home, Folder, PieChart, Command, Settings, Upload } = require("lucide-react");
+const { Home, Folder, PieChart, Command, Settings, Upload, Paperclip } = require("lucide-react");
 
 const data = {
   navMain: [
     { title: "Dashboard", icon: Home, link: "/dashboard" },
+    { title: "Blogs", icon: Paperclip , link: "/blogs" },
     { title: "My Projects", icon: Folder, link: "/users" },
     { title: "SGDs", icon: PieChart, link: "/sgds" },
     { title: "CSR", icon: Command, link: "/csr" },

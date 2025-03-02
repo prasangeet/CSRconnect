@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }) {
   }, []);
 
   if (!isClient) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
   // Convert pathname to breadcrumb format
