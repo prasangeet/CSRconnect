@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
-from .pdf_parser import extract_pdf_table_to_csv
+from .pdf_parser import extract_pdf_content  # Updated to extract both text & tables
 from .gemini_service import classify_sdg_with_gemini
 from .models import SDGClassification
 from django.http import JsonResponse
@@ -14,19 +14,24 @@ def upload_pdf(request):
         return Response({"error": "No file uploaded"}, status=400)
 
     pdf_file = request.FILES["file"]
-    csv_path = extract_pdf_table_to_csv(pdf_file)
+    extracted_text = extract_pdf_content(pdf_file)  # Extract both text & tables
 
-    if not csv_path:
-        return Response({"error": "Failed to extract table from PDF"}, status=500)
+    if not extracted_text:
+        return Response({"error": "Failed to extract content from PDF"}, status=500)
 
     # Call Gemini for classification
-    sdg_results = classify_sdg_with_gemini(csv_path)
+    sdg_results = classify_sdg_with_gemini(extracted_text)
 
-    return Response({"classifications": sdg_results})
+    return Response({
+        "extracted_text": extracted_text,
+        "classifications": sdg_results
+    })
 
 
+@api_view(["GET"])
 def get_sdg_classification(request):
-    classifications = SDGClassification.objects.all().values()  # Convert QuerySet to list of dicts
+    """Fetch all SDG classifications"""
+    classifications = SDGClassification.objects.all().values()
     return JsonResponse(list(classifications), safe=False)
 
 @api_view(["GET"])

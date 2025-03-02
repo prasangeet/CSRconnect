@@ -1,6 +1,5 @@
 import google.generativeai as genai
 from django.conf import settings
-import pandas as pd
 import json
 import time
 import re
@@ -10,51 +9,44 @@ from .models import SDGClassification  # Import the model
 # Configure Gemini API
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
-def classify_sdg_with_gemini(csv_path):
-    """Send extracted CSV data to Gemini for SDG classification and store results in PostgreSQL."""
-    df = pd.read_csv(csv_path)
+def classify_sdg_with_gemini(extracted_text):
+    """Send extracted text to Gemini for SDG classification and store results in PostgreSQL."""
+    if not extracted_text:
+        return {"error": "No extracted text provided"}
 
-    # Convert DataFrame to structured text
-    project_data = df.to_dict(orient="records")
-
-    # Split project_data into smaller chunks to avoid truncation
-    batch_size = 30  # Reduce batch size to avoid exceeding token limits
-    batches = [project_data[i:i + batch_size] for i in range(0, len(project_data), batch_size)]
+    # Split text into smaller chunks to avoid truncation
+    batch_size = 3000  # Adjust batch size based on token limits
+    batches = [extracted_text[i:i + batch_size] for i in range(0, len(extracted_text), batch_size)]
 
     all_classifications = []
 
     # Process each batch separately
     for batch in batches:
-        # Convert batch to JSON string for Gemini
-        batch_data = json.dumps(batch, indent=2)
-
         prompt = f"""
         You are an expert in classifying CSR projects according to the UN Sustainable Development Goals (SDGs). 
-        Given the following project data, identify the most relevant SDG for each project.
+        Given the following extracted project information, identify the most relevant SDG for each project.
 
-        Each project contains the following details:
+        The text contains:
         - CSR Focus Area (e.g., education, health, environment, etc.)
-        - Implementing Organisation (name of the organization implementing the project)
+        - Implementing Organisation (organization implementing the project)
         - Project Type (Annual/Ongoing)
-        - Implementation Status (whether the project is ongoing, under implementation, completed, etc.)
-        - District (the district where the project is being implemented)
-        - State (the state where the project is being implemented)
-        - You should not insert any null values in the response.
+        - Implementation Status (ongoing, completed, etc.)
+        - District (where the project is being implemented)
+        - State (state where the project is being implemented)
+        - Company Name (if available at the top)
 
-        Please return the classification in strict JSON format with the following structure (nothing else should be included in the response, not even 'JSON' at the beginning, and do not include newline characters in the fields):
-
+        Please return classifications in strict JSON format:
         [
-            {{"implementing_organisation": "XYZ", "sdg_number": "1", "sdg_name": "No Poverty", "district": "District Name", "state": "State Name", "project_status": "Under Implementation", "project_type": "Ongoing"}},
-            {{"implementing_organisation": "ABC", "sdg_number": "3", "sdg_name": "Good Health and Well-being", "district": "Another District", "state": "Another State", "project_status": "Completed", "project_type": "Annual"}}
+            {{"implementing_organisation": "XYZ", "sdg_number": "1", "sdg_name": "No Poverty", "district": "District Name", "state": "State Name", "project_status": "Under Implementation", "project_type": "Ongoing", "company_name": "ABC"}},
+            {{"implementing_organisation": "ABC", "sdg_number": "3", "sdg_name": "Good Health and Well-being", "district": "Another District", "state": "Another State", "project_status": "Completed", "project_type": "Annual", "company_name": "XYZ"}}
         ]
 
-        Projects:
-        {batch_data}
+        Extracted Text:
+        {batch}
         """
 
         model = genai.GenerativeModel("gemini-1.5-pro")
 
-        # Handle API Quota Exhaustion (Retry after 60 seconds)
         for attempt in range(3):  # Retry up to 3 times
             try:
                 response = model.generate_content(prompt)
@@ -62,14 +54,14 @@ def classify_sdg_with_gemini(csv_path):
                 # Debugging: print raw response
                 print("Raw response from Gemini:", response.text)
 
-                # Trim extra spaces or newlines in the response
+                # Trim extra spaces or newlines
                 response_text = response.text.strip()
 
                 if not response_text:
                     print("⚠️ Response is empty.")
                     return {"error": "Empty response from Gemini"}
 
-                # Remove any unexpected characters (e.g., backticks, extra newlines)
+                # Remove unexpected characters (e.g., backticks)
                 cleaned_response = re.sub(r'```json|```', '', response_text).strip()
 
                 # Try parsing response to JSON
@@ -86,6 +78,7 @@ def classify_sdg_with_gemini(csv_path):
                         state=item.get("state", ""),
                         project_status=item.get("project_status", ""),
                         project_type=item.get("project_type", ""),
+                        company_name=item.get("company_name", "")
                     )
 
                 print("✅ Data successfully saved to PostgreSQL")
@@ -94,7 +87,7 @@ def classify_sdg_with_gemini(csv_path):
 
             except google.api_core.exceptions.ResourceExhausted:
                 print(f"⚠️ Gemini API quota exceeded. Retrying in 60 seconds... (Attempt {attempt + 1}/3)")
-                time.sleep(60)  # Wait before retrying
+                time.sleep(60)
 
             except json.JSONDecodeError as e:
                 print("❌ Failed to parse JSON:", e)

@@ -23,7 +23,7 @@ const data = {
     { title: "My Projects", icon: Folder, link: "/dashboard/myprojects" },
     { title: "SDGs", icon: PieChart, link: "/dashboard/sdgs" },
     { title: "CSR", icon: Command, link: "/dashboard/csr" },
-    { title: "Upload and Update", icon: Upload, link: "/dashboard/settings" },
+    { title: "Upload and Update", icon: Upload, link: "/dashboard/upload" },
     { title: "Settings", icon: Settings, link: "/dashboard/settings" },
   ],
 };

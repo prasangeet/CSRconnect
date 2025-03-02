@@ -1,18 +1,19 @@
 import pdfplumber
-import pandas as pd
 
-def extract_pdf_table_to_csv(pdf_file):
+def extract_pdf_content(pdf_file):
+    extracted_text = ""
+
     with pdfplumber.open(pdf_file) as pdf:
-        all_tables = []
-        
         for page in pdf.pages:
+            text = page.extract_text()
+            if text:
+                extracted_text += text + "\n"
+
             table = page.extract_table()
             if table:
-                all_tables.extend(table)
+                for row in table:
+                    # ✅ Replace None with empty string to prevent TypeError
+                    row = [str(cell) if cell is not None else "" for cell in row]
+                    extracted_text += " | ".join(row) + "\n"
 
-    if all_tables:
-        df = pd.DataFrame(all_tables)
-        csv_path = "extracted_data.csv"
-        df.to_csv(csv_path, index=False, header=False)
-        return csv_path
-    return None
+    return extracted_text if extracted_text else None
