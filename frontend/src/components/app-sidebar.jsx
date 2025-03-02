@@ -19,12 +19,12 @@ const { Home, Folder, PieChart, Command, Settings, Upload, Paperclip } = require
 const data = {
   navMain: [
     { title: "Dashboard", icon: Home, link: "/dashboard" },
-    { title: "Blogs", icon: Paperclip , link: "/blogs" },
-    { title: "My Projects", icon: Folder, link: "/users" },
-    { title: "SGDs", icon: PieChart, link: "/sgds" },
-    { title: "CSR", icon: Command, link: "/csr" },
-    { title: "Upload and Update", icon: Upload, link: "/settings" },
-    { title: "Settings", icon: Settings, link: "/settings" },
+    { title: "Blogs", icon: Paperclip , link: "/dashboard/blogs" },
+    { title: "My Projects", icon: Folder, link: "/dashboard/myprojects" },
+    { title: "SGDs", icon: PieChart, link: "/dashboard/sgds" },
+    { title: "CSR", icon: Command, link: "/dashboard/csr" },
+    { title: "Upload and Update", icon: Upload, link: "/dashboard/settings" },
+    { title: "Settings", icon: Settings, link: "/dashboard/settings" },
   ],
 };
 
