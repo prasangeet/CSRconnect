@@ -2,17 +2,24 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 function SDGPage() {
+  const router = useRouter();
+
   const data = {
-    sdgs: Array.from({ length: 17 }, (_, i) => ({
-      id: i + 1,
-      name: getSDGName(i + 1),
-      picture: `/sdgs/image${i + 1}.png`,
-      route: `/dashboard/sdgs/${i + 1}?name=${getSDGName(i + 1)}`, // Pass name & number
-      color: getSDGColor(i + 1),
-    })),
+    sdgs: Array.from({ length: 17 }, (_, i) => {
+      const id = i + 1;
+      const name = getSDGName(id);
+      return {
+        id,
+        name,
+        picture: `/sdgs/image${id}.png`,
+        route: `/dashboard/sdgs/${formatSDGName(name)}`, 
+        color: getSDGColor(id),
+      };
+    }),
   };
 
   function getSDGName(id) {
@@ -28,29 +35,29 @@ function SDGPage() {
     return sdgNames[id - 1] || `SDG ${id}`;
   }
 
+  function formatSDGName(name) {
+    return name.toLowerCase().replace(/ /g, "-"); // Convert spaces to dashes
+  }
+
   function getSDGColor(id) {
-    // Official SDG colors
     const colors = [
-      "from-red-500 to-red-600",         // SDG 1
-      "from-yellow-500 to-yellow-600",   // SDG 2
-      "from-green-500 to-green-600",     // SDG 3
-      "from-red-400 to-red-500",         // SDG 4
-      "from-red-600 to-red-700",         // SDG 5
-      "from-blue-400 to-blue-500",       // SDG 6
-      "from-yellow-400 to-yellow-500",   // SDG 7
-      "from-red-500 to-red-600",         // SDG 8
-      "from-orange-500 to-orange-600",   // SDG 9
-      "from-pink-500 to-pink-600",       // SDG 10
-      "from-orange-400 to-orange-500",   // SDG 11
-      "from-amber-600 to-amber-700",     // SDG 12
-      "from-green-600 to-green-700",     // SDG 13
-      "from-blue-600 to-blue-700",       // SDG 14
-      "from-green-500 to-green-600",     // SDG 15
-      "from-blue-700 to-blue-800",       // SDG 16
-      "from-blue-500 to-blue-600",       // SDG 17
+      "from-red-500 to-red-600", "from-yellow-500 to-yellow-600", "from-green-500 to-green-600",
+      "from-red-400 to-red-500", "from-red-600 to-red-700", "from-blue-400 to-blue-500",
+      "from-yellow-400 to-yellow-500", "from-red-500 to-red-600", "from-orange-500 to-orange-600",
+      "from-pink-500 to-pink-600", "from-orange-400 to-orange-500", "from-amber-600 to-amber-700",
+      "from-green-600 to-green-700", "from-blue-600 to-blue-700", "from-green-500 to-green-600",
+      "from-blue-700 to-blue-800", "from-blue-500 to-blue-600",
     ];
     return colors[id - 1] || "from-gray-500 to-gray-600";
   }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const name = urlParams.get("name") || "Sustainable Development Goals";
+      document.title = name;
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b">
@@ -60,7 +67,7 @@ function SDGPage() {
             Sustainable Development Goals
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            The 17 SDGs are integrated—action in one area will affect outcomes in others, and development must balance social, economic and environmental sustainability.
+            The 17 SDGs are integrated—action in one area will affect outcomes in others, and development must balance social, economic, and environmental sustainability.
           </p>
         </div>
 
