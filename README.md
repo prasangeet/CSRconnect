@@ -177,9 +177,9 @@ Want to contribute?
 
 ## **📞 Contact**  
 
-💼 **Project Owner**: _Your Name_  
-📧 **Email**: _your.email@example.com_  
-🌐 **Website**: _your-website.com_  
+💼 **Project Owner**:@prasangeet
+📧 **Email**: b23ch1033@iitj.ac.in 
+🌐 **Website**: prasangeetdongre.vercel.app  
 
 ---
 
