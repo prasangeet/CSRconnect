@@ -13,8 +13,9 @@ import {
 import NavMain from "./nav-main";
 import { useRouter } from "next/navigation";
 import { NavUser } from "./nav-user";
+import Link from "next/link";
 
-const { Home, Folder, PieChart, Command, Settings, Upload, Paperclip } = require("lucide-react");
+const { Home, Folder, PieChart, Command, Settings, Upload, Paperclip, File, Building2, User2 } = require("lucide-react");
 
 const data = {
   navMain: [
@@ -22,6 +23,8 @@ const data = {
     { title: "Blogs", icon: Paperclip , link: "/dashboard/blogs" },
     { title: "My Projects", icon: Folder, link: "/dashboard/myprojects" },
     { title: "SDGs", icon: PieChart, link: "/dashboard/sdgs" },
+    { title: "Faculties", icon: User2, link: "/dashboard/faculties" },
+    { title: "Companies", icon: Building2, link: "/dashboard/companies" },
     { title: "CSR", icon: Command, link: "/dashboard/csr" },
     { title: "Upload and Update", icon: Upload, link: "/dashboard/upload" },
     { title: "Settings", icon: Settings, link: "/dashboard/settings" },
@@ -44,7 +47,7 @@ export function AppSidebar(props) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard">
+              <Link href="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
@@ -52,7 +55,7 @@ export function AppSidebar(props) {
                   <span className="truncate font-semibold">CSR Connect</span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

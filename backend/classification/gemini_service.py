@@ -1,26 +1,26 @@
-import google.generativeai as genai
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from django.conf import settings
 import json
 import time
 import re
-import google.api_core.exceptions
 from .models import SDGClassification  # Import the model
 
-# Configure Gemini API
-genai.configure(api_key=settings.GEMINI_API_KEY)
+# Initialize Langchain Gemini model
+gemini_model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=settings.GEMINI_API_KEY)
 
 def classify_sdg_with_gemini(extracted_text):
-    """Send extracted text to Gemini for SDG classification and store results in PostgreSQL."""
+    """Classify SDG using Gemini via Langchain and store results in PostgreSQL."""
     if not extracted_text:
         return {"error": "No extracted text provided"}
 
-    # Split text into smaller chunks to avoid truncation
-    batch_size = 3000  # Adjust batch size based on token limits
+    # Split text into smaller chunks to avoid token limits
+    batch_size = 3000  
     batches = [extracted_text[i:i + batch_size] for i in range(0, len(extracted_text), batch_size)]
 
     all_classifications = []
 
-    # Process each batch separately
+    # Process each batch
     for batch in batches:
         prompt = f"""
         You are an expert in classifying CSR projects according to the UN Sustainable Development Goals (SDGs). 
@@ -45,30 +45,27 @@ def classify_sdg_with_gemini(extracted_text):
         {batch}
         """
 
-        model = genai.GenerativeModel("gemini-1.5-pro")
-
         for attempt in range(3):  # Retry up to 3 times
             try:
-                response = model.generate_content(prompt)
-
-                # Debugging: print raw response
-                print("Raw response from Gemini:", response.text)
+                response = gemini_model([
+                    HumanMessage(content=prompt)
+                ])
 
                 # Trim extra spaces or newlines
-                response_text = response.text.strip()
+                response_text = response.content.strip()
 
                 if not response_text:
-                    print("⚠️ Response is empty.")
+                    print("⚠️ Empty response from Gemini.")
                     return {"error": "Empty response from Gemini"}
 
-                # Remove unexpected characters (e.g., backticks)
+                # Remove unexpected characters like backticks
                 cleaned_response = re.sub(r'```json|```', '', response_text).strip()
 
-                # Try parsing response to JSON
+                # Parse JSON response
                 classification_data = json.loads(cleaned_response)
                 all_classifications.extend(classification_data)
 
-                # ✅ **Save to PostgreSQL**
+                # ✅ Save data to PostgreSQL
                 for item in classification_data:
                     SDGClassification.objects.create(
                         implementing_organisation=item.get("implementing_organisation", ""),
@@ -81,21 +78,17 @@ def classify_sdg_with_gemini(extracted_text):
                         company_name=item.get("company_name", "")
                     )
 
-                print("✅ Data successfully saved to PostgreSQL")
-                time.sleep(10)  # Wait before next request
+                print("✅ Data successfully saved to PostgreSQL.")
+                time.sleep(10)  # Wait before the next request
                 break  # Exit loop if successful
 
-            except google.api_core.exceptions.ResourceExhausted:
-                print(f"⚠️ Gemini API quota exceeded. Retrying in 60 seconds... (Attempt {attempt + 1}/3)")
-                time.sleep(60)
-
             except json.JSONDecodeError as e:
-                print("❌ Failed to parse JSON:", e)
+                print("❌ JSON Parsing Error:", e)
                 print("Response text that failed to parse:", response_text)
                 return {"error": "Failed to parse Gemini response"}
 
             except Exception as e:
-                print("🔥 Unexpected error:", e)
+                print("🔥 Unexpected Error:", e)
                 return {"error": str(e)}
 
     return all_classifications

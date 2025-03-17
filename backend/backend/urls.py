@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('', views.home, name='home'), # Include user-related endpoints
     path('api/classification/', include('classification.urls')),
+    path('api/faculty/', include('faculty.urls')),
 ]
