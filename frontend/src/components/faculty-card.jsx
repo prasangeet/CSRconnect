@@ -40,7 +40,7 @@ function FacultyCard({ faculty }) {
               <span>Areas of Work</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {faculty.areasOfWork.map((area) => (
+              {faculty.areasOfWork?.map((area) => (
                 <span
                   key={area}
                   className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm"

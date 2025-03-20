@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from .views import get_csrf_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('', views.home, name='home'), # Include user-related endpoints
     path('api/classification/', include('classification.urls')),
     path('api/faculty/', include('faculty.urls')),
+    path('api/csrf/', get_csrf_token, name='csrf_token'),
 ]

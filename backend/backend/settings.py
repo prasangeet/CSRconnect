@@ -76,7 +76,25 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Your frontend URL
+]
+
+CORS_ALLOW_CREDENTIALS = True  # Allows cookies and headers
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",  # Trust frontend for CSRF
+]
+
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "X-CSRFToken",  # Allow CSRF Token
+]
+
+CSRF_COOKIE_SECURE = False  # Set to True in production (HTTPS)
+CSRF_COOKIE_HTTPONLY = False  # Allow frontend access
+CSRF_COOKIE_SAMESITE = 'Lax'  # Adjust for cross-origin requests
 
 CORS_ALLOW_CREDENTIALS = True  # Allow cookies & authentication headers
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]

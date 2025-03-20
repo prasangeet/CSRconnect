@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -16,10 +16,27 @@ function AddFacultyDialog({ fetchFaculty }) {
   const [areasOfWork, setAreasOfWork] = useState("");
   const [sdgContribution, setSdgContribution] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
+  const [csrfToken, setCsrfToken] = useState(""); // Store CSRF Token
   const [isDragging, setIsDragging] = useState(false);
-  const [loading, setLoading] = useState(false); // For Progress Indicator
-  const [success, setSuccess] = useState(false); // For Success Message
-  const [error, setError] = useState(false); // For Error Message
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
+
+  // Fetch CSRF token on component mount
+  useEffect(() => {
+    const getCsrfToken = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/csrf/", {
+          withCredentials: true, // Ensure cookies are sent
+        });
+        setCsrfToken(response.data.csrfToken); // Store token in state
+      } catch (err) {
+        console.error("Error fetching CSRF token:", err);
+      }
+    };
+
+    getCsrfToken();
+  }, []);
 
   const handleFileChange = (e) => {
     if (e.target.files?.[0]) {
@@ -48,28 +65,35 @@ function AddFacultyDialog({ fetchFaculty }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!csrfToken) {
+      console.error("CSRF token is missing!");
+      setError(true);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("specialization", specialization);
     formData.append("areas_of_work", areasOfWork);
     formData.append("sdg_contribution", sdgContribution);
-    formData.append("proposal_paper", pdfFile); // Send PDF to Django Backend
+    formData.append("proposal_pdf", pdfFile); // Match the backend field name
 
     try {
-      setLoading(true); // Show Loader while uploading
+      setLoading(true);
       setError(false);
       setSuccess(false);
 
-      const response = await axios.post("http://localhost:8000/api/faculty/add/", formData, {
+      const response = await axios.post("http://127.0.0.1:8000/api/faculty/add/", formData, {
         headers: {
+          "X-CSRFToken": csrfToken, // Attach CSRF Token
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true, // Ensure cookies are sent
       });
 
       console.log("Faculty added successfully:", response.data);
-
-      setSuccess(true); // Show Success Message
-      fetchFaculty(); // Fetch updated data from backend
+      setSuccess(true);
+      fetchFaculty(); // Refresh faculty list
 
       // Reset form state
       setName("");
@@ -79,9 +103,9 @@ function AddFacultyDialog({ fetchFaculty }) {
       setPdfFile(null);
     } catch (err) {
       console.error("Error adding faculty:", err);
-      setError(true); // Show Error Message
+      setError(true);
     } finally {
-      setLoading(false); // Stop Loader
+      setLoading(false);
     }
   };
 
@@ -184,7 +208,7 @@ function AddFacultyDialog({ fetchFaculty }) {
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || !csrfToken}>
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
             ) : (
