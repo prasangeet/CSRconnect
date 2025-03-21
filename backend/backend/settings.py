@@ -36,7 +36,7 @@ if(GEMINI_API_KEY == None):
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -76,33 +76,20 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Your frontend URL
-]
 
 CORS_ALLOW_CREDENTIALS = True  # Allows cookies and headers
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",  # Trust frontend for CSRF
-]
+CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_HEADERS = [
     "content-type",
     "authorization",
-    "X-CSRFToken",  # Allow CSRF Token
+    "x-csrftoken",
 ]
 
-CSRF_COOKIE_SECURE = False  # Set to True in production (HTTPS)
-CSRF_COOKIE_HTTPONLY = False  # Allow frontend access
-CSRF_COOKIE_SAMESITE = 'Lax'  # Adjust for cross-origin requests
-
-CORS_ALLOW_CREDENTIALS = True  # Allow cookies & authentication headers
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 CORS_ALLOW_HEADERS = ["*"]
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Next.js local dev
-]
+CORS_ORIGIN_ALLOW_ALL = True  # Allow all origins
 
 
 

@@ -29,6 +29,7 @@ function AddFacultyDialog({ fetchFaculty }) {
         const response = await axios.get("http://127.0.0.1:8000/api/csrf/", {
           withCredentials: true, // Ensure cookies are sent
         });
+        console.log("CSRF token fetched:", response.data.csrfToken);
         setCsrfToken(response.data.csrfToken); // Store token in state
       } catch (err) {
         console.error("Error fetching CSRF token:", err);
@@ -83,12 +84,12 @@ function AddFacultyDialog({ fetchFaculty }) {
       setError(false);
       setSuccess(false);
 
-      const response = await axios.post("http://127.0.0.1:8000/api/faculty/add/", formData, {
+      const response = await axios.post("http://localhost:8000/api/faculty/add/", formData, {
         headers: {
           "X-CSRFToken": csrfToken, // Attach CSRF Token
           "Content-Type": "multipart/form-data",
         },
-        withCredentials: true, // Ensure cookies are sent
+        // withCredentials: true, // Ensure cookies are sent
       });
 
       console.log("Faculty added successfully:", response.data);

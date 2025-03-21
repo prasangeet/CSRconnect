@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 def add_faculty(request):
     if request.method == 'POST':
         try:
+            logging.debug(f"Request Headers: {dict(request.headers)}")
             logging.debug("Received a POST request to add faculty.")
             
             # Print request content for debugging
