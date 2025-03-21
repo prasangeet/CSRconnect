@@ -17,6 +17,7 @@ from datetime import timedelta
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from urllib.parse import urlparse
 
 load_dotenv()
 
@@ -41,8 +42,11 @@ ALLOWED_HOSTS = ["*"]
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True,
 )
+
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
 
 # Application definition
 
@@ -139,11 +143,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'csr_connect_db',
-        'USER': 'postgres',
-        'PASSWORD': 'ppd12345',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
     }
 }
 
