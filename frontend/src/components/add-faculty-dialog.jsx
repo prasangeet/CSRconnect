@@ -4,111 +4,134 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { GraduationCap, Upload, Loader2 } from "lucide-react";
+import { GraduationCap, Camera, Loader2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 
 function AddFacultyDialog({ fetchFaculty }) {
-  const [name, setName] = useState("");
-  const [specialization, setSpecialization] = useState("");
-  const [areasOfWork, setAreasOfWork] = useState("");
-  const [sdgContribution, setSdgContribution] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [profilePictureUrl, setProfilePictureUrl] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    specialization: "",
+    areasOfWork: "",
+    sdgContributions: "",
+    email: "",
+    phoneNumber: "",
+  });
+
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
   const [csrfToken, setCsrfToken] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingPdf, setIsDraggingPdf] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
 
-  // Fetch CSRF token on component mount
   useEffect(() => {
     const getCsrfToken = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/csrf/", {
           withCredentials: true,
         });
-        console.log("CSRF token fetched:", response.data.csrfToken);
         setCsrfToken(response.data.csrfToken);
       } catch (err) {
         console.error("Error fetching CSRF token:", err);
       }
     };
-
     getCsrfToken();
   }, []);
 
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleProfilePicture = (e) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleFileChange = (e) => {
-    if (e.target.files?.[0]) {
-      setPdfFile(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (file) {
+      setPdfFile(file);
     }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    setIsDragging(true);
+    setIsDraggingPdf(true);
   };
 
   const handleDragLeave = (e) => {
     e.preventDefault();
-    setIsDragging(false);
+    setIsDraggingPdf(false);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files?.[0]) {
-      setPdfFile(e.dataTransfer.files[0]);
+    setIsDraggingPdf(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setPdfFile(file);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!csrfToken) {
-      console.error("CSRF token is missing!");
       setError(true);
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("specialization", specialization);
-    formData.append("areas_of_work", JSON.stringify(areasOfWork.split(",").map(item => item.trim()))); // Convert to JSON array
-    formData.append("sdg_contribution", JSON.stringify(sdgContribution.split(",").map(Number))); // Convert to JSON array of numbers
-    formData.append("email", email);
-    formData.append("phone_number", phoneNumber);
-    formData.append("profile_picture_url", profilePictureUrl);
-    formData.append("proposal_pdf", pdfFile);
+    const submitFormData = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === 'areasOfWork') {
+        submitFormData.append(key, JSON.stringify(value.split(',').map(item => item.trim())));
+      } else if (key === 'sdgContributions') {
+        submitFormData.append(key, JSON.stringify(value.split(',').map(Number)));
+      } else {
+        submitFormData.append(key, value);
+      }
+    });
+
+    if (profilePicture) submitFormData.append("profile_picture", profilePicture);
+    if (pdfFile) submitFormData.append("proposal_pdf", pdfFile);
 
     try {
       setLoading(true);
       setError(false);
       setSuccess(false);
 
-      const response = await axios.post("http://localhost:8000/api/faculty/add/", formData, {
+      await axios.post("http://localhost:8000/api/faculty/add/", submitFormData, {
         headers: {
           "X-CSRFToken": csrfToken,
           "Content-Type": "multipart/form-data",
         },
       });
 
-      console.log("Faculty added successfully:", response.data);
       setSuccess(true);
       fetchFaculty();
-
-      // Reset form state
-      setName("");
-      setSpecialization("");
-      setAreasOfWork("");
-      setSdgContribution("");
-      setEmail("");
-      setPhoneNumber("");
-      setProfilePictureUrl("");
+      
+      // Reset form
+      setFormData({
+        name: "",
+        specialization: "",
+        areasOfWork: "",
+        sdgContributions: "",
+        email: "",
+        phoneNumber: "",
+      });
+      setProfilePicture(null);
+      setProfilePreview(null);
       setPdfFile(null);
     } catch (err) {
       console.error("Error adding faculty:", err);
@@ -129,59 +152,108 @@ function AddFacultyDialog({ fetchFaculty }) {
 
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">Add New Faculty</DialogTitle>
-          <DialogDescription>
-            Fill in the faculty member's information and upload their proposal paper.
-          </DialogDescription>
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <Input
+                type="file"
+                id="profilePicture"
+                accept="image/*"
+                onChange={handleProfilePicture}
+                className="hidden"
+              />
+              <label
+                htmlFor="profilePicture"
+                className="block w-16 h-16 rounded-full bg-muted cursor-pointer overflow-hidden"
+              >
+                {profilePreview ? (
+                  <img
+                    src={profilePreview}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Camera className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              </label>
+            </div>
+            <div>
+              <DialogTitle className="text-xl font-semibold">Add New Faculty</DialogTitle>
+              <DialogDescription>
+                Fill in the faculty member's information
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="specialization">Specialization</Label>
-            <Input id="specialization" value={specialization} onChange={(e) => setSpecialization(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="areasOfWork">Areas of Work (comma-separated)</Label>
-            <Textarea id="areasOfWork" value={areasOfWork} onChange={(e) => setAreasOfWork(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="sdgContribution">SDG Contribution (comma-separated numbers)</Label>
-            <Input id="sdgContribution" value={sdgContribution} onChange={(e) => setSdgContribution(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">Phone Number</Label>
-            <Input id="phoneNumber" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="profilePictureUrl">Profile Picture URL</Label>
-            <Input id="profilePictureUrl" type="url" value={profilePictureUrl} onChange={(e) => setProfilePictureUrl(e.target.value)} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="proposalPaper">Proposal Paper</Label>
-            <div className={cn("border-2 border-dashed rounded-lg p-6", isDragging && "border-primary bg-muted")} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-              <Input id="proposalPaper" type="file" accept=".pdf" onChange={handleFileChange} className="hidden" />
-              <label htmlFor="proposalPaper" className="cursor-pointer">{pdfFile ? `Selected: ${pdfFile.name}` : "Drag & drop or browse"}</label>
+        <form onSubmit={handleSubmit} className="space-y-3 mt-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="name" className="text-sm">Name</Label>
+              <Input id="name" value={formData.name} onChange={handleInputChange} required />
+            </div>
+            <div>
+              <Label htmlFor="specialization" className="text-sm">Specialization</Label>
+              <Input id="specialization" value={formData.specialization} onChange={handleInputChange} required />
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !csrfToken}>{loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Add Faculty"}</Button>
-          {success && <p className="text-green-600">✅ Faculty added successfully!</p>}
-          {error && <p className="text-red-600">❌ Error uploading PDF. Try again.</p>}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="email" className="text-sm">Email</Label>
+              <Input id="email" type="email" value={formData.email} onChange={handleInputChange} required />
+            </div>
+            <div>
+              <Label htmlFor="phoneNumber" className="text-sm">Phone</Label>
+              <Input id="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} required />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="areasOfWork" className="text-sm">Areas of Work (comma-separated)</Label>
+            <Input id="areasOfWork" value={formData.areasOfWork} onChange={handleInputChange} required />
+          </div>
+
+          <div>
+            <Label htmlFor="sdgContributions" className="text-sm">SDG Contribution (comma-separated numbers)</Label>
+            <Input id="sdgContributions" value={formData.sdgContributions} onChange={handleInputChange} required />
+          </div>
+
+          <div>
+            <Label htmlFor="proposalPaper" className="text-sm">Proposal Paper</Label>
+            <div 
+              className={cn(
+                "border-2 border-dashed rounded-lg p-3", 
+                isDraggingPdf && "border-primary bg-muted"
+              )} 
+              onDragOver={handleDragOver} 
+              onDragLeave={handleDragLeave} 
+              onDrop={handleDrop}
+            >
+              <Input 
+                id="proposalPaper" 
+                type="file" 
+                accept=".pdf" 
+                onChange={handleFileChange} 
+                className="hidden" 
+              />
+              <label htmlFor="proposalPaper" className="cursor-pointer flex items-center justify-center">
+                <Upload className="w-4 h-4 mr-2" />
+                {pdfFile ? `Selected: ${pdfFile.name}` : "Drag & drop or browse"}
+              </label>
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={loading || !csrfToken}>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Add Faculty"}
+          </Button>
+          
+          {success && <p className="text-green-600 text-sm">✅ Faculty added successfully!</p>}
+          {error && <p className="text-red-600 text-sm">❌ Error adding faculty. Please try again.</p>}
         </form>
       </DialogContent>
     </Dialog>

@@ -24,7 +24,7 @@ def add_faculty(request):
             name = request.POST.get('name', '')
             specialization = request.POST.get('specialization', '')
             areas_of_work = request.POST.getlist('areas_of_work[]')
-            sdg_contribution = request.POST.get('sdg_contribution', '')
+            sdg_contributions = request.POST.get('sdg_contributions', '')
 
             # Check if file exists
             if 'proposal_pdf' not in request.FILES:
@@ -44,7 +44,7 @@ def add_faculty(request):
                 name=name,
                 specialization=specialization,
                 areas_of_work=areas_of_work,
-                sdg_contribution=sdg_contribution,
+                sdg_contributions=sdg_contributions,
                 proposal_pdf_url=cloudinary_response['url']
             )
 
@@ -57,7 +57,7 @@ def add_faculty(request):
                     'name': faculty.name,
                     'specialization': faculty.specialization,
                     'areas_of_work': faculty.areas_of_work,
-                    'sdg_contribution': faculty.sdg_contribution,
+                    'sdg_contributions': faculty.sdg_contributions,
                     'proposal_pdf_url': faculty.proposal_pdf_url
                 }
             })
