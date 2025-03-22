@@ -10,20 +10,20 @@ from sdgs.models import SDG
 def add_faculty(request):
     if request.method == 'POST':
         try:
-            # Extract faculty details
+            # Get faculty details from request
             name = request.POST.get('name', '').strip()
             specialization = request.POST.get('specialization', '').strip()
             email = request.POST.get('email', '').strip()
             phone_number = request.POST.get('phone_number', '').strip()
 
-            # Parse areas of work
+            # Parse areas of work (JSONField in model)
             areas_of_work = request.POST.get('areas_of_work', '[]')
             try:
                 areas_of_work = json.loads(areas_of_work) if isinstance(areas_of_work, str) else areas_of_work
             except json.JSONDecodeError:
                 areas_of_work = []
 
-            # Parse SDG contributions
+            # Parse SDG contributions (JSONField in model)
             sdg_contributions = request.POST.get('sdg_contributions', '[]')
             try:
                 sdg_contributions = json.loads(sdg_contributions) if isinstance(sdg_contributions, str) else sdg_contributions
@@ -37,7 +37,7 @@ def add_faculty(request):
             
             proposal_pdf = request.FILES['proposal_pdf']
 
-            # Upload profile picture to Cloudinary under 'csr_connect_avatars' folder
+            # Handle optional profile picture
             profile_picture_url = None
             if 'profile_picture' in request.FILES:
                 profile_pic = request.FILES['profile_picture']
@@ -47,7 +47,7 @@ def add_faculty(request):
             # Upload proposal PDF to Cloudinary
             pdf_upload = upload(proposal_pdf, resource_type="raw", folder="csr_connect_pdfs", format="pdf")
             proposal_pdf_url = pdf_upload['url'].replace('/upload/', '/upload/raw/')
-            
+
             # Create faculty object
             faculty = Faculty.objects.create(
                 name=name,
@@ -60,9 +60,10 @@ def add_faculty(request):
                 profile_picture_url=profile_picture_url
             )
 
-            # Link faculty to SDGs
+            # Link faculty to SDGs using faculties_linked
             sdgs = SDG.objects.filter(number__in=sdg_contributions)
-            faculty.sdgs.set(sdgs)
+            for sdg in sdgs:
+                sdg.faculties_linked.add(faculty)  # Correctly linking faculty to SDG model
 
             return JsonResponse({
                 'message': 'Faculty added successfully',
@@ -84,7 +85,6 @@ def add_faculty(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
 
 def get_faculties(request):
     try:
