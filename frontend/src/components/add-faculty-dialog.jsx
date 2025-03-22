@@ -15,8 +15,11 @@ function AddFacultyDialog({ fetchFaculty }) {
   const [specialization, setSpecialization] = useState("");
   const [areasOfWork, setAreasOfWork] = useState("");
   const [sdgContribution, setSdgContribution] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [profilePictureUrl, setProfilePictureUrl] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
-  const [csrfToken, setCsrfToken] = useState(""); // Store CSRF Token
+  const [csrfToken, setCsrfToken] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,10 +30,10 @@ function AddFacultyDialog({ fetchFaculty }) {
     const getCsrfToken = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/csrf/", {
-          withCredentials: true, // Ensure cookies are sent
+          withCredentials: true,
         });
         console.log("CSRF token fetched:", response.data.csrfToken);
-        setCsrfToken(response.data.csrfToken); // Store token in state
+        setCsrfToken(response.data.csrfToken);
       } catch (err) {
         console.error("Error fetching CSRF token:", err);
       }
@@ -75,9 +78,12 @@ function AddFacultyDialog({ fetchFaculty }) {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("specialization", specialization);
-    formData.append("areas_of_work", areasOfWork);
-    formData.append("sdg_contribution", sdgContribution);
-    formData.append("proposal_pdf", pdfFile); // Match the backend field name
+    formData.append("areas_of_work", JSON.stringify(areasOfWork.split(",").map(item => item.trim()))); // Convert to JSON array
+    formData.append("sdg_contribution", JSON.stringify(sdgContribution.split(",").map(Number))); // Convert to JSON array of numbers
+    formData.append("email", email);
+    formData.append("phone_number", phoneNumber);
+    formData.append("profile_picture_url", profilePictureUrl);
+    formData.append("proposal_pdf", pdfFile);
 
     try {
       setLoading(true);
@@ -86,21 +92,23 @@ function AddFacultyDialog({ fetchFaculty }) {
 
       const response = await axios.post("http://localhost:8000/api/faculty/add/", formData, {
         headers: {
-          "X-CSRFToken": csrfToken, // Attach CSRF Token
+          "X-CSRFToken": csrfToken,
           "Content-Type": "multipart/form-data",
         },
-        // withCredentials: true, // Ensure cookies are sent
       });
 
       console.log("Faculty added successfully:", response.data);
       setSuccess(true);
-      fetchFaculty(); // Refresh faculty list
+      fetchFaculty();
 
       // Reset form state
       setName("");
       setSpecialization("");
       setAreasOfWork("");
       setSdgContribution("");
+      setEmail("");
+      setPhoneNumber("");
+      setProfilePictureUrl("");
       setPdfFile(null);
     } catch (err) {
       console.error("Error adding faculty:", err);
@@ -130,100 +138,50 @@ function AddFacultyDialog({ fetchFaculty }) {
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              placeholder="Dr. Jane Smith"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full"
-              required
-            />
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="specialization">Specialization</Label>
-            <Input
-              id="specialization"
-              placeholder="e.g., Machine Learning, Data Science"
-              value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
-              className="w-full"
-              required
-            />
+            <Input id="specialization" value={specialization} onChange={(e) => setSpecialization(e.target.value)} required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="areasOfWork">Areas of Work</Label>
-            <Textarea
-              id="areasOfWork"
-              placeholder="Enter areas separated by commas (e.g., AI Research, Neural Networks, Computer Vision)"
-              value={areasOfWork}
-              onChange={(e) => setAreasOfWork(e.target.value)}
-              className="w-full min-h-[80px]"
-              required
-            />
+            <Label htmlFor="areasOfWork">Areas of Work (comma-separated)</Label>
+            <Textarea id="areasOfWork" value={areasOfWork} onChange={(e) => setAreasOfWork(e.target.value)} required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="sdgContribution">SDG Contribution</Label>
-            <Input
-              id="sdgContribution"
-              placeholder="e.g., Quality Education (SDG 4)"
-              value={sdgContribution}
-              onChange={(e) => setSdgContribution(e.target.value)}
-              className="w-full"
-              required
-            />
+            <Label htmlFor="sdgContribution">SDG Contribution (comma-separated numbers)</Label>
+            <Input id="sdgContribution" value={sdgContribution} onChange={(e) => setSdgContribution(e.target.value)} required />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber">Phone Number</Label>
+            <Input id="phoneNumber" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="profilePictureUrl">Profile Picture URL</Label>
+            <Input id="profilePictureUrl" type="url" value={profilePictureUrl} onChange={(e) => setProfilePictureUrl(e.target.value)} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="proposalPaper">Proposal Paper</Label>
-            <div
-              className={cn(
-                "border-2 border-dashed rounded-lg p-6 transition-colors",
-                "hover:border-primary/50 hover:bg-muted/50",
-                isDragging && "border-primary bg-muted",
-                "cursor-pointer"
-              )}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <Input
-                id="proposalPaper"
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <label htmlFor="proposalPaper" className="flex flex-col items-center gap-2 cursor-pointer">
-                <Upload className="w-8 h-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground text-center">
-                  {pdfFile ? (
-                    <>Selected: <span className="font-medium text-foreground">{pdfFile.name}</span></>
-                  ) : (
-                    <>Drag & drop your PDF here or <span className="text-primary">browse</span></>
-                  )}
-                </span>
-              </label>
+            <div className={cn("border-2 border-dashed rounded-lg p-6", isDragging && "border-primary bg-muted")} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+              <Input id="proposalPaper" type="file" accept=".pdf" onChange={handleFileChange} className="hidden" />
+              <label htmlFor="proposalPaper" className="cursor-pointer">{pdfFile ? `Selected: ${pdfFile.name}` : "Drag & drop or browse"}</label>
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !csrfToken}>
-            {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin mr-2" />
-            ) : (
-              "Add Faculty Member"
-            )}
-          </Button>
-
-          {success && (
-            <p className="text-green-600 text-sm">✅ Faculty added successfully!</p>
-          )}
-
-          {error && (
-            <p className="text-red-600 text-sm">❌ Error uploading PDF. Try again.</p>
-          )}
+          <Button type="submit" className="w-full" disabled={loading || !csrfToken}>{loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Add Faculty"}</Button>
+          {success && <p className="text-green-600">✅ Faculty added successfully!</p>}
+          {error && <p className="text-red-600">❌ Error uploading PDF. Try again.</p>}
         </form>
       </DialogContent>
     </Dialog>
