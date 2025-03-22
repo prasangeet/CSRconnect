@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'classification',
     'faculty_classification',
-    'faculty'
+    'faculty',
+    'sdgs',
 ]
 
 MIDDLEWARE = [
