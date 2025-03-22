@@ -290,7 +290,7 @@ function AddFacultyDialog({ fetchFaculty }) {
 
           <div>
             <Label htmlFor="sdg_contributions" className="text-sm">
-              SDG Contribution (comma-separated numbers)
+              SDG(Number) Contribution  (comma-separated numbers)
             </Label>
             <Input
               id="sdg_contributions"
