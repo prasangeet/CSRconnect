@@ -17,7 +17,7 @@ openpyxl>=3.1  # Excel File Handling
 pdfplumber>=0.10  # PDF Parsing
 PyMuPDF>=1.23.7  # PDF Text Extraction (if needed)
 pdfminer.six>=20221105  # Alternative PDF Parsing
-cloudinary>=1.26  # Cloudinary Image Uploads
+cloudinary>=1.43.0  # Cloudinary Image Uploads
 
 # -------------------- LLM & Embedding-based Search -------------------- #
 transformers>=4.38  # Hugging Face Model Support (Optional for RAG)
