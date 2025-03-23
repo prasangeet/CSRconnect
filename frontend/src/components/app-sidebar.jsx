@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { NavUser } from "./nav-user";
 import Link from "next/link";
 
-const { Home, Folder, PieChart, Command, Settings, Upload, Paperclip, File, Building2, User2 } = require("lucide-react");
+const { Home, Folder, PieChart, Command, Settings, Upload, Paperclip, File, Building2, User2, BotIcon } = require("lucide-react");
 
 const data = {
   navMain: [
@@ -28,6 +28,7 @@ const data = {
     { title: "CSR", icon: Command, link: "/dashboard/csr" },
     { title: "Upload and Update", icon: Upload, link: "/dashboard/upload" },
     { title: "Settings", icon: Settings, link: "/dashboard/settings" },
+    { title: "Work with AI", icon: BotIcon, link: "/dashboard/chatbot" },
   ],
 };
 

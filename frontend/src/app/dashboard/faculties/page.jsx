@@ -6,33 +6,61 @@ import { Input } from "@/components/ui/input";
 import AddFacultyDialog from "@/components/add-faculty-dialog";
 import FacultyCard from "@/components/faculty-card";
 import { Search, GraduationCap } from "lucide-react";
+import { fetchFacultyData } from "@/services/apiService";
 
 function FacultyPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [facultyData, setFacultyData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch Faculty Data from Backend
-  const fetchFacultyData = async () => {
-    try {
-      const res = await fetch("http://localhost:8000/api/faculty/get/");
-      const data = await res.json();
-      setFacultyData(data);
-    } catch (err) {
-      console.error("Error fetching faculty:", err);
-    }
-  };
+  // const fetchFacultyData = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:8000/api/faculty/get/");
+  //     const data = await res.json();
+  //     setFacultyData(data);
+  //     setLoading(false);
+  //   } catch (err) {
+  //     console.error("Error fetching faculty:", err);
+  //     setLoading(false);
+  //   }
+  // };
 
   // Run on Component Mount
   useEffect(() => {
-    fetchFacultyData();
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchFacultyData(); // Ensure API call is awaited
+        setFacultyData(Array.isArray(data) ? data : []); // Ensure data is an array
+      } catch (err) {
+        console.error("Error fetching faculty:", err);
+        setFacultyData([]); // Set to an empty array on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Filter faculty based on search
   const filteredFaculty = facultyData.filter((faculty) =>
-    `${faculty.name} ${faculty.specialization} ${faculty.areas_of_work.join(" ")} ${faculty.sdg_contribution}`
+    `${faculty.name} ${faculty.specialization} ${faculty.areas_of_work.join(
+      " "
+    )} ${faculty.sdg_contribution}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
+
+  // //use a spinner when loading
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="w-10 h-10 border-t-2 border-b-2 border-primary rounded-full animate-spin" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,7 +72,8 @@ function FacultyPage() {
               <div>
                 <h1 className="text-4xl font-bold mb-4">Faculty Directory</h1>
                 <p className="text-primary-foreground/80 max-w-2xl">
-                  Discover our distinguished faculty members and their contributions to SDGs.
+                  Discover our distinguished faculty members and their
+                  contributions to SDGs.
                 </p>
               </div>
               <AddFacultyDialog fetchFaculty={fetchFacultyData} />
@@ -65,8 +94,20 @@ function FacultyPage() {
             />
           </div>
         </div>
+        {/* If loading show spinner*/}
+        {loading && (
+          <div className="flex items-center justify-center h-64">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
 
         {/* Faculty Cards Grid */}
+        {filteredFaculty.length === 0 && !loading && (
+          <div className="text-center text-muted-foreground">
+            No faculty found. Try searching for something else.
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredFaculty.map((faculty) => (
             <FacultyCard key={faculty.id} faculty={faculty} />

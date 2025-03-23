@@ -227,7 +227,7 @@ function SDGDetailPage() {
                         <Wallet className="w-4 h-4 text-muted-foreground" />
                         <span className="text-muted-foreground">Budget:</span>
                         <span className="font-medium">
-                          ₹{Number(project.budget).toLocaleString()}
+                          ₹{Number(project.budget).toLocaleString()} Cr
                         </span>
                       </div>
                     )}

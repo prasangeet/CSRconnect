@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, Globe, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 function SDGPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -166,13 +167,13 @@ function SDGPage() {
                   {sdg.description}
                 </p>
 
-                <a
+                <Link
                   href={sdg.route}
                   className={`inline-flex items-center justify-center w-full gap-2 text-xs ${sdg.color} text-white py-2 px-3 rounded-md transition-colors duration-300 ${sdg.hoverColor}`}
                 >
                   View Projects
                   <ArrowRight className="w-3 h-3" />
-                </a>
+                </Link>
               </div>
             </Card>
           ))}

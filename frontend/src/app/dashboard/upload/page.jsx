@@ -7,9 +7,11 @@ import { toast } from "sonner";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
+  const [extraPrompt, setExtraPrompt] = useState("");
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -67,8 +69,10 @@ export default function UploadPage() {
     }
 
     setLoading(true);
+    setConfirmed(false);
+
     try {
-      const result = await uploadPDF(file);
+      const result = await uploadPDF(file, extraPrompt);
       setResponse(result);
       toast.success("Upload successful", {
         description: "Your PDF has been processed successfully",
@@ -81,6 +85,15 @@ export default function UploadPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleConfirm = () => {
+    if (!response) return;
+    setConfirmed(true);
+    toast.success("Data confirmed", {
+      description: "The extracted data has been verified",
+      icon: <CheckCircle className="h-5 w-5" />,
+    });
   };
 
   return (
@@ -134,6 +147,17 @@ export default function UploadPage() {
             </div>
           </div>
 
+          {/* Extra Prompt Section */}
+          <div className="mt-4">
+            <label className="block text-gray-800 font-medium mb-2">Additional Instructions</label>
+            <textarea
+              value={extraPrompt}
+              onChange={(e) => setExtraPrompt(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-3 focus:border-green-400 focus:ring focus:ring-green-300"
+              placeholder="Enter extra details to refine classification..."
+            ></textarea>
+          </div>
+
           <div className="mt-6 flex justify-center">
             <button
               onClick={handleUpload}
@@ -159,16 +183,20 @@ export default function UploadPage() {
           </div>
         </div>
 
-        {/* Response Area */}
+        {/* Response Confirmation */}
         {response && (
           <div className="p-6 bg-gray-50">
             <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
               <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
               Processing Results
             </h2>
-            <div className="bg-white border border-gray-200 rounded-lg p-4 overflow-auto max-h-96">
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap">{JSON.stringify(response, null, 2)}</pre>
-            </div>
+            <pre className="text-sm text-gray-700 bg-white p-4 rounded-lg border border-gray-200">{JSON.stringify(response, null, 2)}</pre>
+            <button
+              onClick={handleConfirm}
+              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg"
+            >
+              Confirm Data
+            </button>
           </div>
         )}
       </div>
