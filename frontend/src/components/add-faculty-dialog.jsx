@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { GraduationCap, Camera, Loader2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,10 +20,10 @@ function AddFacultyDialog({ fetchFaculty }) {
   const [formData, setFormData] = useState({
     name: "",
     specialization: "",
-    areasOfWork: "",
-    sdgContributions: "",
+    areas_of_work: "",
+    sdg_contributions: "",
     email: "",
-    phoneNumber: "",
+    phone_number: "",
   });
 
   const [profilePicture, setProfilePicture] = useState(null);
@@ -26,8 +33,9 @@ function AddFacultyDialog({ fetchFaculty }) {
   const [isDraggingPdf, setIsDraggingPdf] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
+  // Fetch CSRF token
   useEffect(() => {
     const getCsrfToken = async () => {
       try {
@@ -42,14 +50,16 @@ function AddFacultyDialog({ fetchFaculty }) {
     getCsrfToken();
   }, []);
 
+  // Handle input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  // Handle profile picture upload
   const handleProfilePicture = (e) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setProfilePicture(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -59,13 +69,17 @@ function AddFacultyDialog({ fetchFaculty }) {
     }
   };
 
+  // Handle PDF upload
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && file.type === "application/pdf") {
       setPdfFile(file);
+    } else {
+      setError("Please upload a valid PDF file.");
     }
   };
 
+  // Drag & Drop functionality
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDraggingPdf(true);
@@ -80,62 +94,80 @@ function AddFacultyDialog({ fetchFaculty }) {
     e.preventDefault();
     setIsDraggingPdf(false);
     const file = e.dataTransfer.files?.[0];
-    if (file) {
+    if (file && file.type === "application/pdf") {
       setPdfFile(file);
+    } else {
+      setError("Please drop a valid PDF file.");
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!csrfToken) {
-      setError(true);
+    setError("");
+
+    if (!pdfFile) {
+      setError("Proposal PDF file is required.");
       return;
     }
 
     const submitFormData = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'areasOfWork') {
-        submitFormData.append(key, JSON.stringify(value.split(',').map(item => item.trim())));
-      } else if (key === 'sdgContributions') {
-        submitFormData.append(key, JSON.stringify(value.split(',').map(Number)));
+      if (key === "areas_of_work") {
+        submitFormData.append(
+          key,
+          JSON.stringify(value.split(",").map((item) => item.trim()))
+        );
+      } else if (key === "sdg_contributions") {
+        submitFormData.append(
+          key,
+          JSON.stringify(
+            value.split(",").map((num) => parseInt(num.trim(), 10))
+          )
+        );
       } else {
         submitFormData.append(key, value);
       }
     });
 
-    if (profilePicture) submitFormData.append("profile_picture", profilePicture);
+    if (profilePicture)
+      submitFormData.append("profile_picture", profilePicture);
     if (pdfFile) submitFormData.append("proposal_pdf", pdfFile);
+
+    console.log("Submitting FormData:", submitFormData); // Debugging
 
     try {
       setLoading(true);
-      setError(false);
       setSuccess(false);
 
-      await axios.post("http://localhost:8000/api/faculty/add/", submitFormData, {
-        headers: {
-          "X-CSRFToken": csrfToken,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post(
+        "http://localhost:8000/api/faculty/add/",
+        submitFormData,
+        {
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+        }
+      );
 
       setSuccess(true);
       fetchFaculty();
-      
+
       // Reset form
       setFormData({
         name: "",
         specialization: "",
-        areasOfWork: "",
-        sdgContributions: "",
+        areas_of_work: "",
+        sdg_contributions: "",
         email: "",
-        phoneNumber: "",
+        phone_number: "",
       });
       setProfilePicture(null);
       setProfilePreview(null);
       setPdfFile(null);
     } catch (err) {
       console.error("Error adding faculty:", err);
-      setError(true);
+      setError("Error adding faculty. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -182,7 +214,9 @@ function AddFacultyDialog({ fetchFaculty }) {
               </label>
             </div>
             <div>
-              <DialogTitle className="text-xl font-semibold">Add New Faculty</DialogTitle>
+              <DialogTitle className="text-xl font-semibold">
+                Add New Faculty
+              </DialogTitle>
               <DialogDescription>
                 Fill in the faculty member's information
               </DialogDescription>
@@ -193,67 +227,133 @@ function AddFacultyDialog({ fetchFaculty }) {
         <form onSubmit={handleSubmit} className="space-y-3 mt-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="name" className="text-sm">Name</Label>
-              <Input id="name" value={formData.name} onChange={handleInputChange} required />
+              <Label htmlFor="name" className="text-sm">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+              />
             </div>
             <div>
-              <Label htmlFor="specialization" className="text-sm">Specialization</Label>
-              <Input id="specialization" value={formData.specialization} onChange={handleInputChange} required />
+              <Label htmlFor="specialization" className="text-sm">
+                Specialization
+              </Label>
+              <Input
+                id="specialization"
+                value={formData.specialization}
+                onChange={handleInputChange}
+                required
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="email" className="text-sm">Email</Label>
-              <Input id="email" type="email" value={formData.email} onChange={handleInputChange} required />
+              <Label htmlFor="email" className="text-sm">
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
             </div>
             <div>
-              <Label htmlFor="phoneNumber" className="text-sm">Phone</Label>
-              <Input id="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} required />
+              <Label htmlFor="phone_number" className="text-sm">
+                Phone
+              </Label>
+              <Input
+                id="phone_number"
+                value={formData.phone_number}
+                onChange={handleInputChange}
+                required
+              />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="areasOfWork" className="text-sm">Areas of Work (comma-separated)</Label>
-            <Input id="areasOfWork" value={formData.areasOfWork} onChange={handleInputChange} required />
+            <Label htmlFor="areas_of_work" className="text-sm">
+              Areas of Work (comma-separated)
+            </Label>
+            <Input
+              id="areas_of_work"
+              value={formData.areas_of_work}
+              onChange={handleInputChange}
+              required
+            />
           </div>
 
           <div>
-            <Label htmlFor="sdgContributions" className="text-sm">SDG Contribution (comma-separated numbers)</Label>
-            <Input id="sdgContributions" value={formData.sdgContributions} onChange={handleInputChange} required />
+            <Label htmlFor="sdg_contributions" className="text-sm">
+              SDG(Number) Contribution  (comma-separated numbers)
+            </Label>
+            <Input
+              id="sdg_contributions"
+              value={formData.sdg_contributions}
+              onChange={handleInputChange}
+              required
+            />
           </div>
 
           <div>
-            <Label htmlFor="proposalPaper" className="text-sm">Proposal Paper</Label>
-            <div 
+            <Label htmlFor="proposalPaper" className="text-sm">
+              Proposal Paper
+            </Label>
+            <div
               className={cn(
-                "border-2 border-dashed rounded-lg p-3", 
+                "border-2 border-dashed rounded-lg p-3",
                 isDraggingPdf && "border-primary bg-muted"
-              )} 
-              onDragOver={handleDragOver} 
-              onDragLeave={handleDragLeave} 
+              )}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              <Input 
-                id="proposalPaper" 
-                type="file" 
-                accept=".pdf" 
-                onChange={handleFileChange} 
-                className="hidden" 
+              <Input
+                id="proposalPaper"
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="hidden"
               />
-              <label htmlFor="proposalPaper" className="cursor-pointer flex items-center justify-center">
+              <label
+                htmlFor="proposalPaper"
+                className="cursor-pointer flex items-center justify-center"
+              >
                 <Upload className="w-4 h-4 mr-2" />
-                {pdfFile ? `Selected: ${pdfFile.name}` : "Drag & drop or browse"}
+                {pdfFile
+                  ? `Selected: ${pdfFile.name}`
+                  : "Drag & drop or browse"}
               </label>
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !csrfToken}>
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Add Faculty"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || !csrfToken}
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+            ) : (
+              "Add Faculty"
+            )}
           </Button>
-          
-          {success && <p className="text-green-600 text-sm">✅ Faculty added successfully!</p>}
-          {error && <p className="text-red-600 text-sm">❌ Error adding faculty. Please try again.</p>}
+
+          {success && (
+            <p className="text-green-600 text-sm">
+              ✅ Faculty added successfully!
+            </p>
+          )}
+          {error && (
+            <p className="text-red-600 text-sm">
+              ❌ Error adding faculty. Please try again.
+            </p>
+          )}
         </form>
       </DialogContent>
     </Dialog>
