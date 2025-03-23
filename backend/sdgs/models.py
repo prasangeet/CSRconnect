@@ -11,3 +11,12 @@ class SDG(models.Model):
 
     def __str__(self):
         return f"SDG {self.number}: {self.name}"
+
+        
+    def faculty_count(self):
+        """Return the count of linked faculty members"""
+        return self.faculties_linked.count()
+        
+    def project_count(self):
+        """Return the count of linked projects"""
+        return self.projects_linked.count()
