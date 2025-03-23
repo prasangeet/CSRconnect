@@ -8,9 +8,10 @@ djangorestframework-simplejwt>=5.3  # JWT Authentication
 PyJWT>=2.8  # JSON Web Token Support
 
 # -------------------- Google Gemini AI SDK -------------------- #
-google-generativeai>=0.5.0
+# google-generativeai>=0.5.0
 google-api-core>=2.17.1
 langchain>=0.1.14  # Langchain for LLM Pipeline
+google-ai-generativelanguage==0.6.15
 # -------------------- Data Parsing & Processing -------------------- #
 pandas>=2.1
 openpyxl>=3.1  # Excel File Handling
