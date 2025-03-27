@@ -83,7 +83,7 @@ export default function DashboardPage() {
     {
       title: "Total Projects",
       value: projectslength,
-      change: "+12%",
+      // change: "+12%",
       icon: FileText,
       color: "bg-blue-500",
       description: "Active projects across all SDGs",
@@ -229,7 +229,7 @@ export default function DashboardPage() {
           <div className="relative z-10">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-4xl font-bold mb-4">SDG Dashboard</h1>
+                <h1 className="text-4xl font-bold mb-4">CSR Connect Dashboard</h1>
                 <p className="text-primary-foreground/80 max-w-2xl">
                   Track and monitor our institution's contributions to the UN
                   Sustainable Development Goals through various projects and

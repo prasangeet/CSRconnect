@@ -4,6 +4,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Separator } from "@radix-ui/react-separator";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -31,9 +32,9 @@ export function Navbar() {
               <span key={href} className="flex items-center">
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href={href} className="text-gray-700 capitalize">
+                  <Link href={href} className="text-gray-700 capitalize">
                     {segment}
-                  </BreadcrumbLink>
+                  </Link>
                 </BreadcrumbItem>
               </span>
             );

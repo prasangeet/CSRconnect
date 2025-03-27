@@ -21,11 +21,11 @@ pdfminer.six>=20221105  # Alternative PDF Parsing
 cloudinary>=1.43.0  # Cloudinary Image Uploads
 
 # -------------------- LLM & Embedding-based Search -------------------- #
-transformers>=4.38  # Hugging Face Model Support (Optional for RAG)
-torch>=2.2  # Required for Deep Learning
-sentence-transformers>=2.2  # For Embedding-based SDG Mapping
+# transformers>=4.38  # Hugging Face Model Support (Optional for RAG)
+# torch>=2.2  # Required for Deep Learning
+# sentence-transformers>=2.2  # For Embedding-based SDG Mapping
 langchain-openai>=0.0.5  # Future integration with OpenAI models (optional)
-pgvector>=0.2.5  # Store Embeddings in PostgreSQL
+# pgvector>=0.2.5  # Store Embeddings in PostgreSQL
 
 # -------------------- Async & Caching -------------------- #
 celery>=5.3  # Background Task Handling

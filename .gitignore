@@ -7,6 +7,9 @@ __pycache__/
 venv/
 env/
 *.env
+linuxEnv
+
+node_modules
 
 # Django stuff
 db.sqlite3
