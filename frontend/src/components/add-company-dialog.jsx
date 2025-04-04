@@ -1,7 +1,5 @@
-"use client"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,63 +8,70 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Plus } from "lucide-react"
-import { addCompany } from "@/services/apiService"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, Upload, ImageIcon } from "lucide-react";
+import { addCompany } from "@/services/apiService";
 
 function AddCompanyDialog({ fetchCompanies }) {
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [logo, setLogo] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     industry: "",
     location: "",
     website: "",
     description: "",
-    sdg_initiatives: "",
-  })
+    logo: "",
+  });
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogo(reader.result);
+        setFormData((prev) => ({ ...prev, logo: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      // Format SDG initiatives as an array of numbers
-      const sdgArray = formData.sdg_initiatives
-        .split(",")
-        .map((sdg) => sdg.trim())
-        .filter((sdg) => sdg !== "")
-
       const companyData = {
         ...formData,
-        sdg_initiatives: sdgArray,
-      }
+      };
 
-      await addCompany(companyData)
-      setOpen(false)
+      await addCompany(companyData);
+      setOpen(false);
       setFormData({
         name: "",
         industry: "",
         location: "",
         website: "",
         description: "",
-        sdg_initiatives: "",
-      })
-      fetchCompanies() // Refresh the companies list
+        logo: "",
+      });
+      setLogo(null);
+      fetchCompanies();
     } catch (error) {
-      console.error("Error adding company:", error)
+      console.error("Error adding company:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -76,17 +81,49 @@ function AddCompanyDialog({ fetchCompanies }) {
           Add Company
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6">
         <DialogHeader>
           <DialogTitle>Add New Partner Company</DialogTitle>
           <DialogDescription>
-            Enter the details of the new partner company. Click save when you're done.
+            Enter the details of the new partner company. Click save when you're
+            done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-4">
+            {/* Logo Upload Section */}
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <input
+                  type="file"
+                  id="logo"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  className="hidden"
+                />
+                <label htmlFor="logo" className="cursor-pointer block">
+                  <div className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-gray-400 transition-colors">
+                    {logo ? (
+                      <img
+                        src={logo}
+                        alt="Company logo"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                        <span className="text-xs text-gray-500 mt-1">
+                          Upload Logo
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </label>
+              </div>
+            </div>
+
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
+              <Label htmlFor="name" className="text-left pl-2">
                 Name
               </Label>
               <Input
@@ -99,7 +136,7 @@ function AddCompanyDialog({ fetchCompanies }) {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="industry" className="text-right">
+              <Label htmlFor="industry" className="text-left pl-2">
                 Industry
               </Label>
               <Input
@@ -112,7 +149,7 @@ function AddCompanyDialog({ fetchCompanies }) {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="location" className="text-right">
+              <Label htmlFor="location" className="text-left pl-2">
                 Location
               </Label>
               <Input
@@ -125,7 +162,7 @@ function AddCompanyDialog({ fetchCompanies }) {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="website" className="text-right">
+              <Label htmlFor="website" className="text-left pl-2">
                 Website
               </Label>
               <Input
@@ -138,21 +175,7 @@ function AddCompanyDialog({ fetchCompanies }) {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="sdg_initiatives" className="text-right">
-                SDG Initiatives
-              </Label>
-              <Input
-                id="sdg_initiatives"
-                name="sdg_initiatives"
-                value={formData.sdg_initiatives}
-                onChange={handleChange}
-                className="col-span-3"
-                placeholder="1, 3, 7, 13"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
+              <Label htmlFor="description" className="text-left pl-2">
                 Description
               </Label>
               <Textarea
@@ -165,16 +188,15 @@ function AddCompanyDialog({ fetchCompanies }) {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="submit" disabled={loading}>
+          <DialogFooter className="justify">
+            <Button type="submit" disabled={loading} className=" justify-center w-32">
               {loading ? "Saving..." : "Save Company"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default AddCompanyDialog
-
+export default AddCompanyDialog;
