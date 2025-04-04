@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Upload, ImageIcon } from "lucide-react";
-import { addCompany } from "@/services/apiService";
+// import { addCompany } from "@/services/apiService";
 
 function AddCompanyDialog({ fetchCompanies }) {
   const [open, setOpen] = useState(false);

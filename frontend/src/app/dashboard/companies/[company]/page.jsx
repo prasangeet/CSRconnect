@@ -1,54 +1,45 @@
 "use client"
 import { useState, useEffect } from "react"
+import { useParams } from "next/navigation"
+import { dummyCompanies } from "@/temp_utils/data"
 import { Building2, Globe, MapPin } from "lucide-react"
 
+// Function to get SDG color based on SDG number
+const getSDGColor = (number) => {
+  const colors = {
+    1: "bg-red-600",
+    2: "bg-yellow-500",
+    3: "bg-green-500",
+    4: "bg-red-400",
+    5: "bg-red-600",
+    6: "bg-blue-400",
+    7: "bg-yellow-400",
+    8: "bg-red-500",
+    9: "bg-orange-500",
+    10: "bg-pink-500",
+    11: "bg-orange-400",
+    12: "bg-amber-600",
+    13: "bg-green-600",
+    14: "bg-blue-600",
+    15: "bg-green-500",
+    16: "bg-blue-700",
+    17: "bg-blue-500",
+  }
+  return colors[number] || "bg-gray-500"
+}
+
 function CompanyPage() {
+  const params = useParams()
   const [company, setCompany] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const getSDGColor = (number) => {
-    const colors = {
-      1: "bg-red-600",
-      2: "bg-yellow-500",
-      3: "bg-green-500",
-      4: "bg-red-400",
-      5: "bg-red-600",
-      6: "bg-blue-400",
-      7: "bg-yellow-400",
-      8: "bg-red-500",
-      9: "bg-orange-500",
-      10: "bg-pink-500",
-      11: "bg-orange-400",
-      12: "bg-amber-600",
-      13: "bg-green-600",
-      14: "bg-blue-600",
-      15: "bg-green-500",
-      16: "bg-blue-700",
-      17: "bg-blue-500",
-    }
-    return colors[number] || "bg-gray-500"
-  }
-
   useEffect(() => {
-    // Simulate fetching company data
-    setTimeout(() => {
-      setCompany({
-        id: 1,
-        name: "EcoTech Solutions",
-        industry: "Renewable Energy",
-        location: "Bangalore, Karnataka",
-        website: "https://ecotechsolutions.example.com",
-        description:
-          "Leading provider of renewable energy solutions focused on solar and wind power technologies. Working to make clean energy accessible to communities across India.",
-        sdg_initiatives: [
-          { id: 1, number: 7, name: "Affordable and Clean Energy" },
-          { id: 2, number: 9, name: "Industry, Innovation and Infrastructure" },
-          { id: 3, number: 13, name: "Climate Action" },
-        ],
-        logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=200&h=200&fit=crop"
-      })
+    const { company: id } = params
+    if (id) {
+      const companyData = dummyCompanies.find((c) => c.id === parseInt(id))
+      setCompany(companyData)
       setLoading(false)
-    }, 1000)
+    }
   }, [])
 
   if (loading) {
@@ -121,7 +112,7 @@ function CompanyPage() {
             )}
           </div>
 
-          {/* SDG Initiatives */}
+          {/* SDG Initiatives with Colors */}
           <div>
             <h2 className="text-xl font-semibold mb-4">SDG Initiatives</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -131,7 +122,7 @@ function CompanyPage() {
                   className="bg-white rounded-lg p-4 shadow-sm border"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full ${getSDGColor(sdg.number)} flex items-center justify-center`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getSDGColor(sdg.number)}`}>
                       <span className="text-lg font-bold text-white">{sdg.number}</span>
                     </div>
                     <h3 className="text-sm font-medium text-gray-900">{sdg.name}</h3>

@@ -18,10 +18,10 @@ function CompanyCard({ company }) {
 
   // Function to navigate to the company details page
   const handleViewDetails = () => {
-    if (!isClient) return
-    const formattedName = company.name.replace(/\s+/g, "-") // Convert spaces to dashes
-    router.push(`/dashboard/companies/${formattedName}`)
-  }
+    if (!isClient) return;
+    router.push(`/dashboard/companies/${company.id}`); // Use id instead of name
+  };
+  
 
   // Get SDG color (reusing from your SDGPage)
   const getSDGColor = (id) => {
