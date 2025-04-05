@@ -1,9 +1,28 @@
+"use client" // Add this at the top if you're using Next.js App Router
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation" // Use `next/navigation` in App Router
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Building2, MapPin, Globe, Target } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 function CompanyCard({ company }) {
+  const router = useRouter()
+  const [isClient, setIsClient] = useState(false)
+
+  // Ensure router is only used on the client side
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // Function to navigate to the company details page
+  const handleViewDetails = () => {
+    if (!isClient) return;
+    router.push(`/dashboard/companies/${company.id}`); // Use id instead of name
+  };
+  
+
   // Get SDG color (reusing from your SDGPage)
   const getSDGColor = (id) => {
     const colors = {
@@ -77,7 +96,7 @@ function CompanyCard({ company }) {
         )}
       </CardContent>
       <CardFooter className="bg-muted/50 px-6 py-3 mt-auto">
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" onClick={handleViewDetails} disabled={!isClient}>
           View Details
         </Button>
       </CardFooter>
@@ -86,4 +105,3 @@ function CompanyCard({ company }) {
 }
 
 export default CompanyCard
-
