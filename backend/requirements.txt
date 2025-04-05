@@ -12,6 +12,7 @@ PyJWT>=2.8  # JSON Web Token Support
 google-api-core>=2.17.1
 langchain>=0.1.14  # Langchain for LLM Pipeline
 google-ai-generativelanguage==0.6.15
+langchain_google_genai
 # -------------------- Data Parsing & Processing -------------------- #
 pandas>=2.1
 openpyxl>=3.1  # Excel File Handling

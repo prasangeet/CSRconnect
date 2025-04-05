@@ -6,6 +6,7 @@ import time
 import re
 from .models import SDGClassification
 from sdgs.models import SDG  # Import SDG model
+from company.views import enrich_company_details
 
 # Initialize Langchain Gemini model
 gemini_model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=settings.GEMINI_API_KEY)
@@ -102,6 +103,19 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
                 for item in classification_data:
                     sdg_number = int(item.get("sdg_number", 0))
 
+                    company_name = item.get("company_name", "").strip()
+                    if company_name:
+                        try:
+                            company_result = enrich_company_details(company_name)
+
+                            if "error" in company_result:
+                                print(f"⚠️ Could not enrich company '{company_name}': {company_result['error']}")
+                            else:
+                                print(f"✅ Enriched company data: {company_result['data']}")
+
+                        except Exception as e:
+                            print(f"🔥 Error calling enrich_company_details for '{company_name}': {e}")
+
                     # Save the project classification
                     classification = SDGClassification.objects.create(
                         program_name=item.get("program_name", ""),
@@ -112,7 +126,7 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
                         state=item.get("state", ""),
                         project_status=item.get("project_status", ""),
                         project_type=item.get("project_type", ""),
-                        company_name=item.get("company_name", ""),
+                        company_name=company_name,
                         budget=item.get("budget", ""),
                         modalities=item.get("modalities", ""),
                         details=item.get("details", "")

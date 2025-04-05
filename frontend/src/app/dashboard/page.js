@@ -10,7 +10,6 @@ import {
   Building2,
   Target,
   Wallet,
-  GraduationCap,
   MapPin,
   User,
 } from "lucide-react";
@@ -309,7 +308,7 @@ export default function DashboardPage() {
                                 </h3>
                                 <span
                                   className={`${getStatusColor(
-                                    project.status
+                                    project.project_status
                                   )} px-2.5 py-0.5 rounded-full text-xs`}
                                 >
                                   {project.status}

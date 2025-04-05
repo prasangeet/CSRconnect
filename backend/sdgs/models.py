@@ -11,7 +11,6 @@ class SDG(models.Model):
 
     def __str__(self):
         return f"SDG {self.number}: {self.name}"
-
         
     def faculty_count(self):
         """Return the count of linked faculty members"""

@@ -65,6 +65,8 @@ INSTALLED_APPS = [
     'faculty_classification',
     'faculty',
     'sdgs',
+    'company',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
