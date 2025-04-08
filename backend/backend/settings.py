@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'sdgs',
     'company',
     'cloudinary',
+    'stakeholders',
 ]
 
 MIDDLEWARE = [

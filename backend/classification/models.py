@@ -1,5 +1,6 @@
 from django.db import models
 from faculty.models import Faculty  # Assuming Faculty model is in the same directory
+from stakeholders.models import StakeholderUser  # Assuming StakeholderUser model is in the same directory
 
 class SDGClassification(models.Model):
     program_name = models.CharField(max_length=255)
@@ -14,6 +15,8 @@ class SDGClassification(models.Model):
     budget = models.CharField(max_length=100, blank=True, null=True)  # Can store numbers & currency symbols
     modalities = models.TextField(blank=True, null=True)  # Additional implementation details
     details = models.TextField(blank=True, null=True)  # Any extra relevant info
+    contact_email = models.EmailField(blank=True, null=True)  # Contact email for the project
+    duration = models.CharField(max_length=255, blank=True, null=True)  # Duration of the project
 
     def __str__(self):
         return f"{self.implementing_organisation} - SDG {self.sdg_number} ({self.sdg_name})"
@@ -25,9 +28,6 @@ class ProgressOverview(models.Model):
     budget_utilized = models.DecimalField(max_digits=10, decimal_places=2)  # Amount utilized
     beneficaries_reached = models.IntegerField()  # Number of beneficiaries reached
     timeline_status = models.CharField(max_length=255, blank=True, null=True)  # Status of the timeline
-    # progress = models.TextField(blank=True, null=True)  # Progress details
-    # challenges = models.TextField(blank=True, null=True)  # Challenges faced
-    # next_steps = models.TextField(blank=True, null=True)  # Next steps to be taken
 
     def __str__(self):
         return f"Progress Overview for {self.sdg_classification}"
@@ -55,8 +55,8 @@ class Challenges(models.Model):
     
 class Stakeholders(models.Model):
     sdg_classification = models.ForeignKey(SDGClassification, on_delete=models.CASCADE, related_name='stakeholders')
-    name = models.CharField(max_length=255)
-    role = models.CharField(max_length=255)
+    stakeholder = models.ForeignKey(StakeholderUser, on_delete=models.CASCADE, related_name='linked_projects')
+    role = models.CharField(max_length=255, blank=True, null=True)  # Role of the stakeholder in the project
 
     def __str__(self):
         return f"Stakeholder for {self.sdg_classification}: {self.name} - {self.role}"
