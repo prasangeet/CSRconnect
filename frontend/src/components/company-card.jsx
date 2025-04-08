@@ -1,29 +1,25 @@
-"use client" // Add this at the top if you're using Next.js App Router
+"use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation" // Use `next/navigation` in App Router
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Building2, MapPin, Globe, Target } from "lucide-react"
+import { Building2, MapPin, Globe, Target, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 function CompanyCard({ company }) {
   const router = useRouter()
   const [isClient, setIsClient] = useState(false)
 
-  // Ensure router is only used on the client side
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Function to navigate to the company details page
   const handleViewDetails = () => {
     if (!isClient) return;
-    router.push(`/dashboard/companies/${company.id}`); // Use id instead of name
+    router.push(`/dashboard/companies/${company.id}`);
   };
-  
 
-  // Get SDG color (reusing from your SDGPage)
   const getSDGColor = (id) => {
     const colors = {
       1: "bg-red-600",
@@ -56,22 +52,33 @@ function CompanyCard({ company }) {
             <Building2 className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h3 className="text-xl font-bold">{company.name}</h3>
-            <p className="text-sm text-muted-foreground">{company.industry}</p>
+            <h3 className="text-xl font-bold">
+              {company.name || "Company Name Not Available"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {company.industry || "Industry Not Specified"}
+            </p>
 
             <div className="flex items-center mt-2 text-sm text-muted-foreground">
               <MapPin className="w-4 h-4 mr-1" />
-              {company.location}
+              {company.location || "Location Not Available"}
             </div>
 
-            {company.website && (
-              <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                <Globe className="w-4 h-4 mr-1" />
-                <a href={company.website} target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <div className="flex items-center mt-1 text-sm text-muted-foreground">
+              <Globe className="w-4 h-4 mr-1" />
+              {company.website ? (
+                <a 
+                  href={company.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:underline"
+                >
                   {company.website.replace(/(^\w+:|^)\/\//, "")}
                 </a>
-              </div>
-            )}
+              ) : (
+                "Website Not Available"
+              )}
+            </div>
           </div>
         </div>
 
@@ -80,23 +87,45 @@ function CompanyCard({ company }) {
             <Target className="w-4 h-4 mr-1" />
             SDG Initiatives
           </h4>
-          <div className="flex flex-wrap gap-1">
-            {company.sdg_initiatives.map((sdg) => (
-              <Badge key={sdg.id} className={`${getSDGColor(sdg.number)} text-white hover:${getSDGColor(sdg.number)}`}>
-                SDG {sdg.number}
-              </Badge>
-            ))}
-          </div>
+          {company.sdg_initiatives && company.sdg_initiatives.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {company.sdg_initiatives.map((sdg) => (
+                <Badge 
+                  key={sdg.id} 
+                  className={`${getSDGColor(sdg.number)} text-white hover:${getSDGColor(sdg.number)}`}
+                >
+                  SDG {sdg.number}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <AlertCircle className="w-4 h-4" />
+              <span>No SDG initiatives listed</span>
+            </div>
+          )}
         </div>
 
-        {company.description && (
-          <div className="mt-4">
-            <p className="text-sm text-muted-foreground line-clamp-3">{company.description}</p>
-          </div>
-        )}
+        <div className="mt-4">
+          {company.description ? (
+            <p className="text-sm text-muted-foreground line-clamp-3">
+              {company.description}
+            </p>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <AlertCircle className="w-4 h-4" />
+              <span>No company description available</span>
+            </div>
+          )}
+        </div>
       </CardContent>
       <CardFooter className="bg-muted/50 px-6 py-3 mt-auto">
-        <Button variant="outline" className="w-full" onClick={handleViewDetails} disabled={!isClient}>
+        <Button 
+          variant="outline" 
+          className="w-full" 
+          onClick={handleViewDetails} 
+          disabled={!isClient}
+        >
           View Details
         </Button>
       </CardFooter>

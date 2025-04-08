@@ -16,3 +16,4 @@ class SDGClassification(models.Model):
 
     def __str__(self):
         return f"{self.implementing_organisation} - SDG {self.sdg_number} ({self.sdg_name})"
+

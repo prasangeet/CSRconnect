@@ -118,3 +118,104 @@ export const fetchFacultyData = async () => {
     return [];
   }
 };
+
+export const addCompany = async (formData) => {
+  try {
+    const token = localStorage.getItem("access_token");
+
+    const response = await axios.post(
+      "http://localhost:8000/api/company/add-company/",
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response.status === 201) {
+      console.log("Company added successfully:", response.data);
+      return response.data;
+    } else {
+      console.error("Failed to add company:", response.statusText);
+      return null;
+    }
+  } catch (error) {
+    console.error(
+      "Error adding company:",
+      error.response?.data || error.message
+    );
+    return null;
+  }
+};
+
+export const fetchCompanies = async () => {
+  try {
+    const token = localStorage.getItem("access_token");
+
+    const response = await axios.get(
+      "http://localhost:8000/api/company/get-all-companies/",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status == 200) {
+      return response.data; // Return the list of companies
+    } else {
+      console.error("Failed to fetch companies:", response.statusText);
+      return null; // Return null if the fetch failed
+    }
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    return null; // Return null in case of an error
+  }
+};
+
+export const fetchCompany = async (companyId) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    const response = await axios.get(
+      `http://localhost:8000/api/company/get-company/${companyId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status == 200) {
+      return response.data; // Return the company data
+    } else {
+      console.error("Failed to fetch company:", response.statusText);
+      return null; // Return null if the fetch failed
+    }
+  } catch (error) {
+    console.error("Error fetching company:", error);
+    return null; // Return null in case of an error
+  }
+};
+
+export const fetchProjectById = async (projectId) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    const response = await axios.get(
+      `http://localhost:8000/api/classification/sdg/get_project/${projectId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data; // Axios automatically parses JSON
+  } catch (error) {
+    console.error("Error fetching project by ID:", error);
+    return null;
+  }
+};

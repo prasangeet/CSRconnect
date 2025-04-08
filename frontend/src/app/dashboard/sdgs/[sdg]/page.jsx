@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { fetchSDGData } from "@/services/apiService";
 import {
   ArrowUpRight,
@@ -14,11 +14,13 @@ import {
 } from "lucide-react";
 import { Card, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 function SDGDetailPage() {
   const { sdg } = useParams();
   const [sdgData, setSdgData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
   function getSDGName(id) {
     const sdgNames = [
@@ -235,10 +237,12 @@ function SDGDetailPage() {
                 </div>
 
                 <CardFooter className="mt-auto">
-                  <Button className="w-full group">
-                    View Details
-                    <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                  </Button>
+                  <Link href={`${pathname}/${project.id}`} className="w-full">
+                    <Button className="w-full group">
+                      View Details
+                      <ArrowUpRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}

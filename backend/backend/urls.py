@@ -26,4 +26,5 @@ urlpatterns = [
     path('api/classification/', include('classification.urls')),
     path('api/faculty/', include('faculty.urls')),
     path('api/csrf/', get_csrf_token, name='csrf_token'),
+    path('api/company/', include('company.urls')),
 ]

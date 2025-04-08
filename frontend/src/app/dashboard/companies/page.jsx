@@ -5,26 +5,28 @@ import { Input } from "@/components/ui/input"
 import AddCompanyDialog from "@/components/add-company-dialog"
 import CompanyCard from "@/components/company-card"
 import { Search, Building2 } from "lucide-react"
-import { fetchCompaniesData } from "@/services/apiService"
-import { dummyCompanies } from "@/temp_utils/data" // Import dummy data
+import { fetchCompanies } from "@/services/apiService"
 
 function CompaniesPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [companiesData, setCompaniesData] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Run on Component Mount
   useEffect(() => {
-    // Simulate loading delay
-    setTimeout(() => {
-      setCompaniesData(dummyCompanies)
+    const loadCompanies = async () => {
+      setLoading(true)
+      const companies = await fetchCompanies()
+      if (companies) {
+        setCompaniesData(companies)
+      }
       setLoading(false)
-    }, 1000)
+    }
+
+    loadCompanies()
   }, [])
 
-  // Filter companies based on search
-  const filteredCompanies = companiesData.filter((company) =>
-    `${company.name} ${company.industry} ${company.sdg_initiatives.map((sdg) => sdg.name).join(" ")} ${company.location}`
+  const filteredCompanies = companiesData?.filter((company) =>
+    `${company.name} ${company.industry} ${company.sdg_initiatives?.map((sdg) => sdg.name).join(" ")} ${company.location}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase()),
   )
@@ -42,7 +44,7 @@ function CompaniesPage() {
                   Explore our partner organizations and their contributions to sustainable development goals.
                 </p>
               </div>
-              <AddCompanyDialog fetchCompanies={fetchCompaniesData} />
+              <AddCompanyDialog fetchCompanies={fetchCompanies} />
             </div>
           </div>
           <Building2 className="absolute right-4 bottom-4 w-64 h-64 text-primary-foreground/10" />
@@ -61,14 +63,12 @@ function CompaniesPage() {
           </div>
         </div>
 
-        {/* If loading show spinner */}
         {loading && (
           <div className="flex items-center justify-center h-64">
             <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
-        {/* Company Cards Grid */}
         {filteredCompanies.length === 0 && !loading && (
           <div className="text-center text-muted-foreground">No companies found. Try searching for something else.</div>
         )}

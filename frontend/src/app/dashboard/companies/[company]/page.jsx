@@ -1,32 +1,11 @@
 "use client"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
-import { dummyCompanies } from "@/temp_utils/data"
 import { Building2, Globe, MapPin } from "lucide-react"
-
-// Function to get SDG color based on SDG number
-const getSDGColor = (number) => {
-  const colors = {
-    1: "bg-red-600",
-    2: "bg-yellow-500",
-    3: "bg-green-500",
-    4: "bg-red-400",
-    5: "bg-red-600",
-    6: "bg-blue-400",
-    7: "bg-yellow-400",
-    8: "bg-red-500",
-    9: "bg-orange-500",
-    10: "bg-pink-500",
-    11: "bg-orange-400",
-    12: "bg-amber-600",
-    13: "bg-green-600",
-    14: "bg-blue-600",
-    15: "bg-green-500",
-    16: "bg-blue-700",
-    17: "bg-blue-500",
-  }
-  return colors[number] || "bg-gray-500"
-}
+import Image from "next/image"
+import { fetchCompany } from "@/services/apiService"
+import EditCompanyDialog from "@/components/edit-company-dialog"
+import { getSDGColor } from "@/lib/sdg-utils"
 
 function CompanyPage() {
   const params = useParams()
@@ -34,13 +13,21 @@ function CompanyPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const { company: id } = params
-    if (id) {
-      const companyData = dummyCompanies.find((c) => c.id === parseInt(id))
+    loadCompanyData()
+  }, [params.company])
+
+  const loadCompanyData = async () => {
+    const companyData = await fetchCompany(params.company)
+    if (companyData) {
       setCompany(companyData)
-      setLoading(false)
+      console.log(companyData)
     }
-  }, [])
+    setLoading(false)
+  }
+
+  const handleCompanyUpdate = (updatedCompany) => {
+    setCompany(updatedCompany)
+  }
 
   if (loading) {
     return (
@@ -67,7 +54,9 @@ function CompanyPage() {
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-6">
                 {company.logo ? (
-                  <img
+                  <Image
+                    width={96}
+                    height={96}
                     src={company.logo}
                     alt={`${company.name} logo`}
                     className="w-24 h-24 rounded-full object-cover border-4 border-primary-foreground/20"
@@ -80,10 +69,11 @@ function CompanyPage() {
                 <div>
                   <h1 className="text-4xl font-bold mb-2">{company.name}</h1>
                   <p className="text-primary-foreground/80 text-lg">
-                    {company.industry}
+                    {company.industry || "Industry not specified"}
                   </p>
                 </div>
               </div>
+              <EditCompanyDialog company={company} onUpdate={handleCompanyUpdate} />
             </div>
           </div>
           <Building2 className="absolute right-4 bottom-4 w-64 h-64 text-primary-foreground/10" />
@@ -95,11 +85,11 @@ function CompanyPage() {
           <div className="flex flex-col sm:flex-row gap-4 text-muted-foreground">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
-              <span>{company.location}</span>
+              <span>{company.location || "Location not available"}</span>
             </div>
-            {company.website && (
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4" />
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4" />
+              {company.website ? (
                 <a 
                   href={company.website} 
                   target="_blank" 
@@ -108,35 +98,44 @@ function CompanyPage() {
                 >
                   {company.website.replace(/(^\w+:|^)\/\//, "")}
                 </a>
-              </div>
-            )}
-          </div>
-
-          {/* SDG Initiatives with Colors */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">SDG Initiatives</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {company.sdg_initiatives.map((sdg) => (
-                <div
-                  key={sdg.id}
-                  className="bg-white rounded-lg p-4 shadow-sm border"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getSDGColor(sdg.number)}`}>
-                      <span className="text-lg font-bold text-white">{sdg.number}</span>
-                    </div>
-                    <h3 className="text-sm font-medium text-gray-900">{sdg.name}</h3>
-                  </div>
-                </div>
-              ))}
+              ) : (
+                <span>Website not available</span>
+              )}
             </div>
           </div>
+
+          {/* SDG Initiatives */}
+          {company.sdg_initiatives && company.sdg_initiatives.length > 0 ? (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">SDG Initiatives</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {company.sdg_initiatives.map((sdg) => (
+                  <div
+                    key={sdg.id}
+                    className="bg-card rounded-lg p-4 shadow-sm border"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getSDGColor(sdg.number)}`}>
+                        <span className="text-lg font-bold text-white">{sdg.number}</span>
+                      </div>
+                      <h3 className="text-sm font-medium text-card-foreground">{sdg.name}</h3>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">SDG Initiatives</h2>
+              <p className="text-muted-foreground">No SDG initiatives available</p>
+            </div>
+          )}
 
           {/* Description */}
           <div>
             <h2 className="text-xl font-semibold mb-4">About</h2>
             <p className="text-muted-foreground">
-              {company.description}
+              {company.description || "No description available"}
             </p>
           </div>
         </div>

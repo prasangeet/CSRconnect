@@ -24,7 +24,7 @@ class CompanyDetails(models.Model):
     location = models.CharField(max_length=100, blank=True, null=True)
     website = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    logo = models.ImageField(upload_to='company_logo', blank=True, null=True)
+    logo = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

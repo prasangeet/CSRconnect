@@ -13,12 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Upload, ImageIcon } from "lucide-react";
-// import { addCompany } from "@/services/apiService";
+import { addCompany } from "@/services/apiService";
 
 function AddCompanyDialog({ fetchCompanies }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [logo, setLogo] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     industry: "",
@@ -36,25 +37,29 @@ function AddCompanyDialog({ fetchCompanies }) {
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogo(reader.result);
-        setFormData((prev) => ({ ...prev, logo: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      setLogo(file); // This will be sent to the backend
+  
+      const previewURL = URL.createObjectURL(file); // Create blob preview
+      setLogoPreview(previewURL);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
-      const companyData = {
-        ...formData,
-      };
-
-      await addCompany(companyData);
+      const form = new FormData();
+      form.append("name", formData.name);
+      form.append("industry", formData.industry);
+      form.append("location", formData.location);
+      form.append("website", formData.website);
+      form.append("description", formData.description);
+      if (logo) {
+        form.append("logo", logo); // send actual File object
+      }
+  
+      await addCompany(form); // send FormData
       setOpen(false);
       setFormData({
         name: "",
@@ -72,6 +77,7 @@ function AddCompanyDialog({ fetchCompanies }) {
       setLoading(false);
     }
   };
+  
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -103,9 +109,9 @@ function AddCompanyDialog({ fetchCompanies }) {
                 />
                 <label htmlFor="logo" className="cursor-pointer block">
                   <div className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-gray-400 transition-colors">
-                    {logo ? (
+                    {logoPreview ? (
                       <img
-                        src={logo}
+                        src={logoPreview}
                         alt="Company logo"
                         className="w-full h-full object-cover"
                       />

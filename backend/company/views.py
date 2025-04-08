@@ -16,6 +16,54 @@ def enrich_company(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
 @csrf_exempt
+def fetch_all_companies(request):
+    if request.method == "GET":
+        print("[DEBUG] Fetching all companies...")  # Debug Start
+
+        companies = CompanyDetails.objects.all()
+        print(f"[DEBUG] Total companies found: {companies.count()}")  # Debug Count
+
+        company_list = []
+        for company in companies:
+            company_data = {
+                "id": company.id,
+                "name": company.name,
+                "industry": company.industry,
+                "location": company.location,
+                "website": company.website,
+                "description": company.description,
+                "logo": company.logo
+            }
+            print(f"[DEBUG] Company serialized: {company_data['name']}")  # Per company debug
+            company_list.append(company_data)
+
+        print("[DEBUG] Returning JSON response with companies")  # Final debug
+        return JsonResponse(company_list, safe=False, status=200)
+
+    print("[DEBUG] Invalid request method for fetch_all_companies")  # Invalid method debug
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@csrf_exempt
+def fetch_company_details(request, company_id):
+    if request.method == "GET":
+        company = CompanyDetails.objects.filter(id=company_id).first()
+        if not company:
+            return JsonResponse({"error": "Company not found"}, status=404)
+        company_data = {
+            "name": company.name,
+            "industry": company.industry,
+            "location": company.location,
+            "website": company.website,
+            "description": company.description,
+            "logo": company.logo
+        }
+
+        return JsonResponse(company_data, status=200)
+    
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
 def add_company(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -25,15 +73,17 @@ def add_company(request):
         description = request.POST.get("description")
         logo_file = request.FILES.get("logo")
 
+        print(logo_file)
+
         if not name:
             return JsonResponse({"error": "Company name is required"}, status=400)
         
-        if CompanyDetails.object.filter(name__iexact=name).exists():
+        if CompanyDetails.objects.filter(name__iexact=name).exists():
             return JsonResponse({"message": "Company already exists"}, status=200)
         
         logo_url = None
         if logo_file:
-            upload_result = cloudinary.uploader.upload(logo_file)
+            upload_result = cloudinary.uploader.upload(logo_file, folder="company_logos/")
             logo_url = upload_result.get("secure_url")
 
         company = CompanyDetails.objects.create(
@@ -52,7 +102,7 @@ def add_company(request):
                 "name": company.name,
                 "logo": logo_url
             }
-        })
+        }, status=201)
     
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
@@ -84,6 +134,29 @@ def update_company_details(request, company_id):
                 "name": company.name,
                 "logo": company.logo
             }
-        })
+        }, status=200)
 
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def fetch_company_projects(request, company_id):
+    if request.method == "GET":
+        try:
+            company = CompanyDetails.objects.get(id=company_id)
+        except CompanyDetails.DoesNotExist:
+            return JsonResponse({"error": "Company not found"}, status=404)
+
+        projects = company.projects_initiatives.all()
+        project_list = []
+        for project in projects:
+            project_list.append({
+                "id": project.id,
+                "name": project.name,
+                "description": project.description,
+                "sdg": project.sdg.name if project.sdg else None
+            })
+        
+        return JsonResponse({
+            "company": company.name,
+            "projects": project_list
+        })

@@ -62,3 +62,15 @@ def get_sdg_classified_data(request, sdg_number):
     classifications = SDGClassification.objects.filter(sdg_number=sdg_number)
     serializer = SDGClassificationSerializer(classifications, many=True)
     return JsonResponse(serializer.data, safe=False)
+
+@api_view(["GET"])
+def get_project_data(request, project_id):
+    """
+    Fetch project data by project ID.
+    """
+    try:
+        classification = SDGClassification.objects.get(id=project_id)
+        serializer = SDGClassificationSerializer(classification)
+        return JsonResponse(serializer.data, safe=False)
+    except SDGClassification.DoesNotExist:
+        return JsonResponse({"error": "Project not found"}, status=404)
