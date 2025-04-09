@@ -1,99 +1,99 @@
+// components/faculty-card.jsx
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { FileText, BookOpen, Target, GraduationCap, Mail, Phone } from "lucide-react";
+import { Edit, GraduationCap, BookOpen, Target, Globe } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-function FacultyCard({ faculty }) {
+function FacultyCard({ faculty, onEdit }) {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      {/* Profile Picture */}
-      <div className="relative group">
-        <img
-          src={faculty.profile_picture_url || "/default-avatar.png"} // Fallback image
-          alt={faculty.name}
-          className="w-full h-48 object-cover object-center"
-        />
-        {faculty.proposal_pdf_url && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button variant="secondary" size="sm" asChild>
-              <a
-                href={faculty.proposal_pdf_url} // Cloudinary-stored PDF
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
+    <Card className="h-full flex flex-col">
+      <CardHeader className="bg-primary/5">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="text-lg font-bold">{faculty.name}</h3>
+            <p className="text-sm text-muted-foreground">{faculty.specialization}</p>
+          </div>
+          {onEdit && (
+            <div className="relative group">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={() => onEdit("name")}
               >
-                <FileText className="w-4 h-4" />
-                View Proposal
-              </a>
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="p-6">
-        {/* Faculty Name */}
-        <h3 className="text-xl font-semibold mb-2">{faculty.name}</h3>
-
-        {/* Specialization */}
-        <div className="flex items-center gap-2 text-muted-foreground mb-2">
-          <BookOpen className="w-4 h-4" />
-          <span>{faculty.specialization}</span>
+                <Edit className="h-4 w-4" />
+              </Button>
+              <div className="absolute hidden group-hover:block right-0 top-full mt-1 bg-white shadow-lg rounded-md p-2 z-10">
+                <div className="flex flex-col gap-1 w-40">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="justify-start" 
+                    onClick={() => onEdit("name")}
+                  >
+                    <GraduationCap className="h-4 w-4 mr-2" /> Edit Basic Info
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="justify-start" 
+                    onClick={() => onEdit("specialization")}
+                  >
+                    <BookOpen className="h-4 w-4 mr-2" /> Edit Specialization
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="justify-start" 
+                    onClick={() => onEdit("areas")}
+                  >
+                    <Target className="h-4 w-4 mr-2" /> Edit Areas of Work
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="justify-start" 
+                    onClick={() => onEdit("sdg")}
+                  >
+                    <Globe className="h-4 w-4 mr-2" /> Edit SDG Contribution
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="justify-start" 
+                    onClick={() => onEdit("publications")}
+                  >
+                    <BookOpen className="h-4 w-4 mr-2" /> Edit Publications
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* Email & Phone Number */}
-        {/* <div className="flex flex-col gap-2 text-muted-foreground mb-3">
-          <div className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            <span>{faculty.email}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="w-4 h-4" />
-            <span>{faculty.phone_number}</span>
-          </div>
-        </div> */}
-
-        {/* Areas of Work */}
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col justify-between py-4">
         <div className="space-y-4">
           <div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-              <Target className="w-4 h-4" />
-              <span>Areas of Work</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {Array.isArray(faculty.areas_of_work) && faculty.areas_of_work.length > 0 ? (
-                faculty.areas_of_work.map((area, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm"
-                  >
-                    {area}
-                  </span>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">No areas specified</span>
+            <h4 className="text-sm font-medium">Areas of Work</h4>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {faculty.areas_of_work?.map((area, i) => (
+                <Badge key={i} variant="outline" className="text-xs">
+                  {area}
+                </Badge>
+              ))}
+              {!faculty.areas_of_work?.length && (
+                <p className="text-sm text-muted-foreground">No areas specified</p>
               )}
             </div>
           </div>
-
-          {/* SDG Contributions */}
-          <div className="pt-2">
-            <div className="text-sm text-muted-foreground mb-2">SDG Contributions:</div>
-            <div className="flex flex-wrap gap-2">
-              {Array.isArray(faculty.sdg_contributions) && faculty.sdg_contributions.length > 0 ? (
-                faculty.sdg_contributions.map((sdg, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
-                  >
-                    SDG {sdg}
-                  </span>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">No SDG Mapping</span>
-              )}
-            </div>
+          <div>
+            <h4 className="text-sm font-medium">SDG Contribution</h4>
+            <p className="text-sm text-muted-foreground mt-1">
+              {faculty.sdg_contribution || "No SDG contribution specified"}
+            </p>
           </div>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 }

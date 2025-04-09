@@ -6,36 +6,35 @@ import { Input } from "@/components/ui/input";
 import AddFacultyDialog from "@/components/add-faculty-dialog";
 import FacultyCard from "@/components/faculty-card";
 import { Search, GraduationCap } from "lucide-react";
-import { fetchFacultyData } from "@/services/apiService";
+import { fetchFacultyData, updateFacultyData } from "@/services/apiService";
+import {
+  EditFacultyName,
+  EditFacultySpecialization,
+  EditFacultyAreas,
+  EditFacultySDG,
+  EditFacultyPublications
+} from "@/components/projectComponents";
 
 function FacultyPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [facultyData, setFacultyData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [editDialog, setEditDialog] = useState({
+    type: null, // e.g., "name", "specialization", etc.
+    open: false
+  });
 
-  // Fetch Faculty Data from Backend
-  // const fetchFacultyData = async () => {
-  //   try {
-  //     const res = await fetch("http://localhost:8000/api/faculty/get/");
-  //     const data = await res.json();
-  //     setFacultyData(data);
-  //     setLoading(false);
-  //   } catch (err) {
-  //     console.error("Error fetching faculty:", err);
-  //     setLoading(false);
-  //   }
-  // };
-
-  // Run on Component Mount
+  // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await fetchFacultyData(); // Ensure API call is awaited
-        setFacultyData(Array.isArray(data) ? data : []); // Ensure data is an array
+        const data = await fetchFacultyData();
+        setFacultyData(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error fetching faculty:", err);
-        setFacultyData([]); // Set to an empty array on error
+        setFacultyData([]);
       } finally {
         setLoading(false);
       }
@@ -53,14 +52,44 @@ function FacultyPage() {
       .includes(searchQuery.toLowerCase())
   );
 
-  // //use a spinner when loading
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="w-10 h-10 border-t-2 border-b-2 border-primary rounded-full animate-spin" />
-  //     </div>
-  //   );
-  // }
+  // Handle opening the edit dialog
+  const handleEdit = (faculty, type) => {
+    setSelectedFaculty(faculty);
+    setEditDialog({ type, open: true });
+  };
+
+  // Handle saving the edited data
+  const handleSave = async (updatedData) => {
+    try {
+      // Update the faculty data on the server
+      await updateFacultyData(selectedFaculty.id, updatedData);
+      
+      // Update the local state
+      setFacultyData((prev) =>
+        prev.map((faculty) =>
+          faculty.id === selectedFaculty.id 
+            ? { ...faculty, ...updatedData } 
+            : faculty
+        )
+      );
+      
+      // Close the dialog
+      setEditDialog({ type: null, open: false });
+    } catch (error) {
+      console.error("Error updating faculty data:", error);
+      // You might want to show an error message to the user here
+    }
+  };
+
+  // Refresh data after any update
+  const refreshData = async () => {
+    try {
+      const data = await fetchFacultyData();
+      setFacultyData(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error refreshing faculty data:", err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,7 +105,7 @@ function FacultyPage() {
                   contributions to SDGs.
                 </p>
               </div>
-              <AddFacultyDialog fetchFaculty={fetchFacultyData} />
+              <AddFacultyDialog fetchFaculty={refreshData} />
             </div>
           </div>
           <GraduationCap className="absolute right-4 bottom-4 w-64 h-64 text-primary-foreground/10" />
@@ -94,26 +123,82 @@ function FacultyPage() {
             />
           </div>
         </div>
-        {/* If loading show spinner*/}
+        
+        {/* Loading spinner */}
         {loading && (
           <div className="flex items-center justify-center h-64">
             <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
-        {/* Faculty Cards Grid */}
+        {/* No results message */}
         {filteredFaculty.length === 0 && !loading && (
           <div className="text-center text-muted-foreground">
             No faculty found. Try searching for something else.
           </div>
         )}
 
+        {/* Faculty Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredFaculty.map((faculty) => (
-            <FacultyCard key={faculty.id} faculty={faculty} />
+            <FacultyCard 
+              key={faculty.id} 
+              faculty={faculty} 
+              onEdit={(type) => handleEdit(faculty, type)}
+            />
           ))}
         </div>
       </div>
+
+      {/* Edit Dialogs */}
+      {selectedFaculty && (
+        <>
+          <EditFacultyName
+            faculty={selectedFaculty}
+            open={editDialog.type === "name" && editDialog.open}
+            onOpenChange={(open) => 
+              setEditDialog(prev => ({ ...prev, open: open }))
+            }
+            onSave={handleSave}
+          />
+          
+          <EditFacultySpecialization
+            faculty={selectedFaculty}
+            open={editDialog.type === "specialization" && editDialog.open}
+            onOpenChange={(open) => 
+              setEditDialog(prev => ({ ...prev, open: open }))
+            }
+            onSave={handleSave}
+          />
+          
+          <EditFacultyAreas
+            faculty={selectedFaculty}
+            open={editDialog.type === "areas" && editDialog.open}
+            onOpenChange={(open) => 
+              setEditDialog(prev => ({ ...prev, open: open }))
+            }
+            onSave={handleSave}
+          />
+          
+          <EditFacultySDG
+            faculty={selectedFaculty}
+            open={editDialog.type === "sdg" && editDialog.open}
+            onOpenChange={(open) => 
+              setEditDialog(prev => ({ ...prev, open: open }))
+            }
+            onSave={handleSave}
+          />
+          
+          <EditFacultyPublications
+            faculty={selectedFaculty}
+            open={editDialog.type === "publications" && editDialog.open}
+            onOpenChange={(open) => 
+              setEditDialog(prev => ({ ...prev, open: open }))
+            }
+            onSave={handleSave}
+          />
+        </>
+      )}
     </div>
   );
 }
