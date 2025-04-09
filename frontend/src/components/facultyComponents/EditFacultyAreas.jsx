@@ -7,7 +7,7 @@ import { Plus,X } from "lucide-react";
 
 
 export function EditFacultyAreas({ faculty, onSave, open, onOpenChange }) {
-    const [formData,setFreomData ]= useState({
+    const [formData,setFormData ]= useState({
         areas_of_work: faculty?.areas_of_work || [],
         new_area:""
   
@@ -17,7 +17,7 @@ export function EditFacultyAreas({ faculty, onSave, open, onOpenChange }) {
 
     const addArea=()=>{
         if(formData.new_area.trim()){
-            setFreomData(prev=>({
+            setFormData(prev=>({
                 ...prev,
                 areas_of_work:[...prev.areas_of_work,formData.new_area],
                 new_area:""
@@ -34,7 +34,7 @@ export function EditFacultyAreas({ faculty, onSave, open, onOpenChange }) {
     }));
     }
 
-    const hadelSubmit = (e)=>{
+    const handelSubmit = (e)=>{
         e.preventDefault();
         const { new_area, ...dataToSave } = formData;
         onSave(dataToSave);

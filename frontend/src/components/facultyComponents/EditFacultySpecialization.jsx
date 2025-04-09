@@ -6,9 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 
 
 export function EditFacultySpecialization({ faculty, onSave, open, onOpenChange }) {
-    const [formData, setFreomData ]= useState({
-        spectilization:faculty?.spectilization || " ",
-        exportise: faculty?.exportise || " ",
+    const [formData, setFormData ]= useState({
+        specialization:faculty?.specialization || " ",
+        expertise: faculty?.expertise || " ",
         qualification: faculty?.qualification || "",
         experience_years: faculty?.experience_years || "",
         bio: faculty?.bio || ""
