@@ -5,7 +5,7 @@ import { Input} from "@/components/ui/input";
 import AddFacultyDialog from "@/components/add-faculty-dialog";
 import FacultyCard from "@/components/faculty-card";
 import { Search, GraduationCap } from "lucide-react";
-import { fetchFaculty } from "@/services/apiService";
+import { fetchFacultyData } from "@/services/apiService";
 
 function FacultyPage(){
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,7 +15,7 @@ function FacultyPage(){
   useEffect(()=>{
     const loadFaculty = async()=>{
       setLoading(true);
-      const faculty  = await fetchFaculty();
+      const faculty  = await fetchFacultyData();
       if (faculty){
         setFacultyData(faculty);
 
@@ -45,7 +45,7 @@ function FacultyPage(){
                   Explore our faculty members, their research areas, and academic contributions.
                 </p>
               </div>
-              <AddFacultyDialog fetchFaculty={fetchFaculty} />
+              <AddFacultyDialog fetchFaculty={fetchFacultyData} />
             </div>
           </div>
           <GraduationCap className="absolute right-4 bottom-4 w-64 h-64 text-primary-foreground/10" />
