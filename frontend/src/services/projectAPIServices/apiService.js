@@ -26,3 +26,15 @@ export const update_project_details = async (projectId, projectData) => {
         return null; // Return null in case of an error
     }
 }
+
+export const update_project_overview = async (projectId, projectData) => {
+    try{
+        const token = localStorage.getItem("access_token");
+        const response = await axios.put(
+            
+        )
+    }catch(error){
+        console.error("Error updating project overview:", error);
+        return null; // Return null in case of an error
+    }
+}

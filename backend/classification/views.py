@@ -27,22 +27,27 @@ def upload_pdf(request):
     """
     if "file" not in request.FILES:
         return Response({"error": "No file uploaded"}, status=400)
-    
-    logging.debug("Received Extra prompt: " + request.data.get("extra_prompt", ""))
 
+    # ✅ Extract file and optional metadata
     pdf_file = request.FILES["file"]
-    extracted_text = extract_pdf_content(pdf_file)  # Extract both text & tables
+    extracted_text = extract_pdf_content(pdf_file)
 
     if not extracted_text:
         return Response({"error": "Failed to extract content from PDF"}, status=500)
 
-    # ✅ Get additional prompt instructions from request, default to empty
     extra_prompt = request.data.get("extra_prompt", "")
+    company_id = request.data.get("company_id", "").strip()
 
-    # ✅ Call Gemini for SDG classification
-    sdg_results = classify_sdg_with_gemini(extracted_text, extra_prompt)
+    logging.debug(f"Received extra_prompt: {extra_prompt}")
+    logging.debug(f"Received company_id: {company_id}")
 
-    # ✅ Check if classification succeeded
+    # ✅ Validate company_id
+    if not company_id.isdigit():
+        return Response({"error": "Invalid or missing company_id"}, status=400)
+
+    # ✅ Call Gemini classification with valid company_id
+    sdg_results = classify_sdg_with_gemini(extracted_text, company_id, extra_prompt)
+
     if "error" in sdg_results:
         return Response({"error": sdg_results["error"]}, status=500)
 

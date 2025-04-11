@@ -25,8 +25,9 @@ class CompanyDetails(models.Model):
     website = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     logo = models.URLField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+    csr_policy = models.URLField(blank=True, null=True)
     
     # SDG and project relations
     sdg_initiatives = models.ManyToManyField("sdgs.SDG", related_name="company_details", blank=True)

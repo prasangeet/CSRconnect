@@ -185,9 +185,14 @@ function ProjectDashboard() {
         <div className="bg-primary text-primary-foreground p-8 rounded-xl mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold mb-4">
-                {project.implementing_organisation || noInfo}
+              <h1 className="text-3xl font-bold mb-2">
+                {project.program_name || noInfo}
               </h1>
+
+              <p className="text-sm text-muted-foreground mb-4">
+                {project.implementing_organisation || noInfo}
+              </p>
+
               <div className="flex flex-wrap gap-4 items-center">
                 <span
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(

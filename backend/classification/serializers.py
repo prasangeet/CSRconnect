@@ -2,19 +2,24 @@ from rest_framework import serializers
 from .models import SDGClassification, ProgressOverview, Objectives, KeyOutcomes, Challenges, Stakeholders, FacultiesLinked
 
 class SDGClassificationSerializer(serializers.ModelSerializer):
+    company_name = serializers.SerializerMethodField()
+
     class Meta:
         model = SDGClassification
         fields = "__all__"  # This includes all model fields in the API response
 
+    def get_company_name(self, obj):
+        return obj.company.name if obj.company else None
+
 class ProjectPartialUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SDGClassification
-        fields = ['organization_name', 'project_status', 'project_type']
+        fields = ['program_name', 'implementing_organization', 'project_status', 'project_type']
 
 class ProjectOverviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = SDGClassification
-        fields = ['id', 'program_name', 'implementing_organisation', 'district', 'state', 'description']
+        fields = ['district', 'state', 'modalities', 'company_name', 'budget', 'contact_email', 'start_date', 'end_date']
 
 class ProgressOverviewSerializer(serializers.ModelSerializer):
     class Meta:

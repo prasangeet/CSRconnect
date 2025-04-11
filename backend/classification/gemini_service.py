@@ -6,12 +6,12 @@ import time
 import re
 from .models import SDGClassification
 from sdgs.models import SDG  # Import SDG model
-from company.views import enrich_company_details
+from company.models import CompanyDetails  # Import Company model 
 
 # Initialize Langchain Gemini model
 gemini_model = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=settings.GEMINI_API_KEY)
 
-def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
+def classify_sdg_with_gemini(extracted_text, company_id, extra_prompt=""):
     """Classify SDG using Gemini via Langchain, store results in PostgreSQL, and return confirmation."""
     if not extracted_text:
         return {"error": "No extracted text provided"}
@@ -36,12 +36,13 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
         - Implementation Status (ongoing, completed, etc.)
         - District (where the project is being implemented)
         - State (state where the project is being implemented)
-        - Company Name (if available at the top)
+        - Company Id (company ID for the database accessment, should be provided in the prompt)
         - Budget (allocated budget for the project)
         - Modalities (specific project strategies or implementation methods)
         - Details (any additional relevant information)
 
         {extra_prompt}  # ✅ Incorporate additional user-provided instructions.
+        company id: {company_id}
 
         Please return classifications in strict JSON format:
         [
@@ -54,7 +55,7 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
                 "state": "State Name",
                 "project_status": "Under Implementation",
                 "project_type": "Ongoing",
-                "company_name": "ABC",
+                "company_id": "123",
                 "budget": "100000",
                 "modalities": "support female students",
                 "details": "additional details"
@@ -68,7 +69,7 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
                 "state": "Another State",
                 "project_status": "Completed",
                 "project_type": "Annual",
-                "company_name": "XYZ",
+                "company_id": "234",
                 "budget": "50000",
                 "modalities": "support farmers",
                 "details": "additional details"
@@ -102,19 +103,14 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
                 # ✅ Save data to PostgreSQL and link to SDG
                 for item in classification_data:
                     sdg_number = int(item.get("sdg_number", 0))
-
-                    company_name = item.get("company_name", "").strip()
-                    if company_name:
-                        try:
-                            company_result = enrich_company_details(company_name)
-
-                            if "error" in company_result:
-                                print(f"⚠️ Could not enrich company '{company_name}': {company_result['error']}")
-                            else:
-                                print(f"✅ Enriched company data: {company_result['data']}")
-
-                        except Exception as e:
-                            print(f"🔥 Error calling enrich_company_details for '{company_name}': {e}")
+                    print("[DEBUG] Using company_id from function args:", company_id)
+                    company_instance = None
+                    
+                    try:
+                        company_instance = CompanyDetails.objects.get(id=company_id)
+                    except CompanyDetails.DoesNotExist:
+                        print(f"[ERROR] Company with ID {company_id} not found.")
+                        continue  # Skip this item if company doesn't exist
 
                     # Save the project classification
                     classification = SDGClassification.objects.create(
@@ -126,7 +122,7 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
                         state=item.get("state", ""),
                         project_status=item.get("project_status", ""),
                         project_type=item.get("project_type", ""),
-                        company_name=company_name,
+                        company =company_instance,
                         budget=item.get("budget", ""),
                         modalities=item.get("modalities", ""),
                         details=item.get("details", "")
@@ -138,9 +134,13 @@ def classify_sdg_with_gemini(extracted_text, extra_prompt=""):
                         defaults={"name": item.get("sdg_name", ""), "description": ""}
                     )
 
+
                     sdg.projects_linked.add(classification)  # ✅ Add project to SDG
                     sdg.save()
+                    company_instance.project_initiatives.add(classification)
+                    company_instance.sdg_initiatives.add(sdg)
 
+                company_instance.save()
                 print("✅ Data successfully saved to PostgreSQL and linked to SDGs.")
                 time.sleep(10)  # Wait before the next request
                 break  # Exit loop if successful

@@ -1,6 +1,7 @@
 from django.db import models
 from faculty.models import Faculty  # Assuming Faculty model is in the same directory
 from stakeholders.models import StakeholderUser  # Assuming StakeholderUser model is in the same directory
+from company.models import CompanyDetails  # Assuming CompanyUser model is in the same directory
 
 class SDGClassification(models.Model):
     program_name = models.CharField(max_length=255)
@@ -11,12 +12,14 @@ class SDGClassification(models.Model):
     state = models.CharField(max_length=255, blank=True, null=True)
     project_status = models.CharField(max_length=255, blank=True, null=True)
     project_type = models.CharField(max_length=255, blank=True, null=True)
-    company_name = models.CharField(max_length=255, blank=True, null=True)
+    company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE, related_name='sdg_classifications', blank=True, null=True)
     budget = models.CharField(max_length=100, blank=True, null=True)  # Can store numbers & currency symbols
     modalities = models.TextField(blank=True, null=True)  # Additional implementation details
     details = models.TextField(blank=True, null=True)  # Any extra relevant info
     contact_email = models.EmailField(blank=True, null=True)  # Contact email for the project
     duration = models.CharField(max_length=255, blank=True, null=True)  # Duration of the project
+    start_date = models.DateField(blank=True, null=True)  # Start date of the project
+    end_date = models.DateField(blank=True, null=True)  # End date of the project
 
     def __str__(self):
         return f"{self.implementing_organisation} - SDG {self.sdg_number} ({self.sdg_name})"
