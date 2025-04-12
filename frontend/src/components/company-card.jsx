@@ -1,19 +1,20 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Building2, MapPin, Globe, Target, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Building2, MapPin, Globe, Target, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function CompanyCard({ company }) {
-  const router = useRouter()
-  const [isClient, setIsClient] = useState(false)
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
+    console.log(company);
+    setIsClient(true);
+  }, []);
 
   const handleViewDetails = () => {
     if (!isClient) return;
@@ -39,9 +40,9 @@ function CompanyCard({ company }) {
       15: "bg-green-500",
       16: "bg-blue-700",
       17: "bg-blue-500",
-    }
-    return colors[id] || "bg-slate-600"
-  }
+    };
+    return colors[id] || "bg-slate-600";
+  };
 
   return (
     <Card className="overflow-hidden h-full flex flex-col">
@@ -67,10 +68,10 @@ function CompanyCard({ company }) {
             <div className="flex items-center mt-1 text-sm text-muted-foreground">
               <Globe className="w-4 h-4 mr-1" />
               {company.website ? (
-                <a 
-                  href={company.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={company.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:underline"
                 >
                   {company.website.replace(/(^\w+:|^)\/\//, "")}
@@ -90,9 +91,12 @@ function CompanyCard({ company }) {
           {company.sdg_initiatives && company.sdg_initiatives.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {company.sdg_initiatives.map((sdg) => (
-                <Badge 
-                  key={sdg.id} 
-                  className={`${getSDGColor(sdg.number)} text-white hover:${getSDGColor(sdg.number)}`}
+                <Badge
+                  key={sdg.id}
+                  title={`SDG ${sdg.number} - ${sdg.name}`}
+                  className={`${getSDGColor(
+                    sdg.number
+                  )} text-white hover:${getSDGColor(sdg.number)}`}
                 >
                   SDG {sdg.number}
                 </Badge>
@@ -120,17 +124,17 @@ function CompanyCard({ company }) {
         </div>
       </CardContent>
       <CardFooter className="bg-muted/50 px-6 py-3 mt-auto">
-        <Button 
-          variant="outline" 
-          className="w-full" 
-          onClick={handleViewDetails} 
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleViewDetails}
           disabled={!isClient}
         >
           View Details
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
-export default CompanyCard
+export default CompanyCard;

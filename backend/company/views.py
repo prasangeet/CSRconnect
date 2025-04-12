@@ -1,162 +1,121 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from company.services.gemini_company_service import enrich_company_details
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import status
 import cloudinary.uploader
 from .models import CompanyDetails
-from django.views.decorators.csrf import csrf_exempt
+from .serializers import CompanyDetailsSerializer, CompanyCreateSerializer, CompanyProjectSerializer
 
-# Create your views here.
-@csrf_exempt
-def enrich_company(request):
-    if request.method == "POST":
-        company_name = request.POST.get("company_name")
-        response = enrich_company_details(company_name)
-        return JsonResponse(response, safe=False)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
-    
-@csrf_exempt
+@api_view(["POST"])
+def add_company_by_name(request):
+    company_name = request.data.get("name")
+    if not company_name:
+        return Response({"error": "Company name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    company = CompanyDetails.objects.create(name=company_name)
+    return Response({"company": {"id": company.id, "name": company.name}}, status=status.HTTP_201_CREATED)
+
+@api_view(["GET"])
 def fetch_all_companies(request):
-    if request.method == "GET":
-        print("[DEBUG] Fetching all companies...")  # Debug Start
+    companies = CompanyDetails.objects.all()
+    serializer = CompanyDetailsSerializer(companies, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
-        companies = CompanyDetails.objects.all()
-        print(f"[DEBUG] Total companies found: {companies.count()}")  # Debug Count
-
-        company_list = []
-        for company in companies:
-            company_data = {
-                "id": company.id,
-                "name": company.name,
-                "industry": company.industry,
-                "location": company.location,
-                "website": company.website,
-                "description": company.description,
-                "logo": company.logo
-            }
-            print(f"[DEBUG] Company serialized: {company_data['name']}")  # Per company debug
-            company_list.append(company_data)
-
-        print("[DEBUG] Returning JSON response with companies")  # Final debug
-        return JsonResponse(company_list, safe=False, status=200)
-
-    print("[DEBUG] Invalid request method for fetch_all_companies")  # Invalid method debug
-    return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
-@csrf_exempt
+@api_view(["GET"])
 def fetch_company_details(request, company_id):
-    if request.method == "GET":
-        company = CompanyDetails.objects.filter(id=company_id).first()
-        if not company:
-            return JsonResponse({"error": "Company not found"}, status=404)
-        company_data = {
-            "name": company.name,
-            "industry": company.industry,
-            "location": company.location,
-            "website": company.website,
-            "description": company.description,
-            "logo": company.logo
-        }
+    company = get_object_or_404(CompanyDetails, id=company_id)
+    serializer = CompanyDetailsSerializer(company)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return JsonResponse(company_data, status=200)
-    
-    return JsonResponse({"error": "Invalid request method"}, status=400)
-
-@csrf_exempt
+@api_view(["POST"])
+@parser_classes([MultiPartParser, FormParser])
 def add_company(request):
-    if request.method == "POST":
-        name = request.POST.get("name")
-        industry = request.POST.get("industry")
-        location = request.POST.get("location")
-        website = request.POST.get("website")
-        description = request.POST.get("description")
+    serializer = CompanyCreateSerializer(data=request.data)
+    if serializer.is_valid():
         logo_file = request.FILES.get("logo")
-
-        print(logo_file)
-
-        if not name:
-            return JsonResponse({"error": "Company name is required"}, status=400)
-        
-        if CompanyDetails.objects.filter(name__iexact=name).exists():
-            return JsonResponse({"message": "Company already exists"}, status=200)
-        
-        logo_url = None
         if logo_file:
             upload_result = cloudinary.uploader.upload(logo_file, folder="company_logos/")
-            logo_url = upload_result.get("secure_url")
-
-        company = CompanyDetails.objects.create(
-            name=name,
-            industry=industry,
-            location=location,
-            website=website,
-            description=description,
-            logo=logo_url
-        )
-
-        return JsonResponse({
+            serializer.validated_data["logo"] = upload_result.get("secure_url")
+        
+        company = serializer.save()
+        return Response({
             "message": "Company added successfully",
-            "company": {
-                "id": company.id,
-                "name": company.name,
-                "logo": logo_url
-            }
-        }, status=201)
-    
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+            "company": {"id": company.id, "name": company.name, "logo": company.logo}
+        }, status=status.HTTP_201_CREATED)
 
-@csrf_exempt
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+@parser_classes([MultiPartParser, FormParser])
 def update_company_details(request, company_id):
-    if request.method == "POST":
-        try:
-            company = CompanyDetails.objects.get(id=company_id)
-        except CompanyDetails.DoesNotExist:
-            return JsonResponse({"error": "Company not found"}, status=404)
-
-        company.name = request.POST.get("name", company.name)
-        company.industry = request.POST.get("industry", company.industry)
-        company.location = request.POST.get("location", company.location)
-        company.website = request.POST.get("website", company.website)
-        company.description = request.POST.get("description", company.description)
-
+    company = get_object_or_404(CompanyDetails, id=company_id)
+    serializer = CompanyCreateSerializer(company, data=request.data, partial=True)
+    if serializer.is_valid():
         logo_file = request.FILES.get("logo")
         if logo_file:
             upload_result = cloudinary.uploader.upload(logo_file, folder="company_logos/")
-            company.logo = upload_result.get("secure_url")
+            serializer.validated_data["logo"] = upload_result.get("secure_url")
 
+        company = serializer.save()
+        return Response({
+            "message": "Company updated successfully",
+            "company": {"id": company.id, "name": company.name, "logo": company.logo}
+        }, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET"])
+def fetch_company_projects(request, company_id):
+    company = get_object_or_404(CompanyDetails, id=company_id)
+    serializer = CompanyProjectSerializer(company)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+@parser_classes([MultiPartParser, FormParser])
+def add_csr_policy(request, company_id):
+    company = get_object_or_404(CompanyDetails, id=company_id)
+
+    csr_file = request.FILES.get("csr_policy")
+    if not csr_file:
+        return Response({"error": "CSR policy file is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        upload_result = cloudinary.uploader.upload(
+            csr_file,
+            folder="csr_policies/",
+            resource_type="raw",  # for PDFs and non-image files
+        )
+        company.csr_policy = upload_result.get("secure_url")
         company.save()
 
-        return JsonResponse({
-            "message": "Company updated successfully",
+        return Response({
+            "message": "CSR policy uploaded successfully.",
             "company": {
                 "id": company.id,
                 "name": company.name,
-                "logo": company.logo
+                "csr_policy": company.csr_policy,
             }
-        }, status=200)
+        }, status=status.HTTP_200_OK)
 
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+    except Exception as e:
+        return Response({"error": f"Upload failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['DELETE'])
+def remove_csr_policy(request, company_id):
+    company = get_object_or_404(CompanyDetails, id=company_id)
 
-@csrf_exempt
-def fetch_company_projects(request, company_id):
-    if request.method == "GET":
-        try:
-            company = CompanyDetails.objects.get(id=company_id)
-        except CompanyDetails.DoesNotExist:
-            return JsonResponse({"error": "Company not found"}, status=404)
+    if not company.csr_policy:
+        return Response({"error": "No CSR policy to remove."}, status=status.HTTP_400_BAD_REQUEST)
 
-        projects = company.projects_initiatives.all()
-        project_list = []
-        for project in projects:
-            project_list.append({
-                "id": project.id,
-                "name": project.name,
-                "description": project.description,
-                "sdg": project.sdg.name if project.sdg else None
-            })
-        
-        return JsonResponse({
-            "company": company.name,
-            "projects": project_list
-        })
+    company.csr_policy = None
+    company.save()
+
+    return Response({
+        "message": "CSR policy removed successfully.",
+        "company": {
+            "id": company.id,
+            "name": company.name,
+            "csr_policy": company.csr_policy,
+        }
+    }, status=status.HTTP_200_OK)

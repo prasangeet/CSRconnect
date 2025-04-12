@@ -1,13 +1,20 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export function EditProjectTitle({ project, onSave, open, onOpenChange }) {
   const [formData, setFormData] = useState({
+    program_name: project?.program_name || "",
     implementing_organisation: project?.implementing_organisation || "",
     project_status: project?.project_status || "",
-    project_type: project?.project_type || ""
+    project_type: project?.project_type || "",
   });
 
   const handleSubmit = (e) => {
@@ -23,33 +30,51 @@ export function EditProjectTitle({ project, onSave, open, onOpenChange }) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
+            <label className="text-sm font-medium">Program Name</label>
+            <Input
+              value={formData.program_name}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  program_name: e.target.value,
+                }))
+              }
+            />
+          </div>
+          <div className="space-y-2">
             <label className="text-sm font-medium">Organization Name</label>
             <Input
               value={formData.implementing_organisation}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                implementing_organisation: e.target.value
-              }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  implementing_organisation: e.target.value,
+                }))
+              }
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Project Status</label>
             <Input
               value={formData.project_status}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                project_status: e.target.value
-              }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  project_status: e.target.value,
+                }))
+              }
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Project Type</label>
             <Input
               value={formData.project_type}
-              onChange={(e) => setFormData(prev => ({
-                ...prev,
-                project_type: e.target.value
-              }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  project_type: e.target.value,
+                }))
+              }
             />
           </div>
           <DialogFooter>

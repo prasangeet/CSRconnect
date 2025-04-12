@@ -1,6 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+<<<<<<< HEAD
 import { FileText, BookOpen, Target, GraduationCap, Mail, Phone } from "lucide-react";
+=======
+import {
+  FileText,
+  BookOpen,
+  Target,
+  GraduationCap,
+  Mail,
+  Phone,
+} from "lucide-react";
+>>>>>>> b78145214529fd26c277cf44d102546f446f9ed5
 
 function FacultyCard({ faculty }) {
   return (
@@ -59,7 +70,12 @@ function FacultyCard({ faculty }) {
               <span>Areas of Work</span>
             </div>
             <div className="flex flex-wrap gap-2">
+<<<<<<< HEAD
               {Array.isArray(faculty.areas_of_work) && faculty.areas_of_work.length > 0 ? (
+=======
+              {Array.isArray(faculty.areas_of_work) &&
+              faculty.areas_of_work.length > 0 ? (
+>>>>>>> b78145214529fd26c277cf44d102546f446f9ed5
                 faculty.areas_of_work.map((area, index) => (
                   <span
                     key={index}
@@ -69,16 +85,31 @@ function FacultyCard({ faculty }) {
                   </span>
                 ))
               ) : (
+<<<<<<< HEAD
                 <span className="text-sm text-muted-foreground">No areas specified</span>
+=======
+                <span className="text-sm text-muted-foreground">
+                  No areas specified
+                </span>
+>>>>>>> b78145214529fd26c277cf44d102546f446f9ed5
               )}
             </div>
           </div>
 
           {/* SDG Contributions */}
           <div className="pt-2">
+<<<<<<< HEAD
             <div className="text-sm text-muted-foreground mb-2">SDG Contributions:</div>
             <div className="flex flex-wrap gap-2">
               {Array.isArray(faculty.sdg_contributions) && faculty.sdg_contributions.length > 0 ? (
+=======
+            <div className="text-sm text-muted-foreground mb-2">
+              SDG Contributions:
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Array.isArray(faculty.sdg_contributions) &&
+              faculty.sdg_contributions.length > 0 ? (
+>>>>>>> b78145214529fd26c277cf44d102546f446f9ed5
                 faculty.sdg_contributions.map((sdg, index) => (
                   <span
                     key={index}
@@ -88,7 +119,13 @@ function FacultyCard({ faculty }) {
                   </span>
                 ))
               ) : (
+<<<<<<< HEAD
                 <span className="text-sm text-muted-foreground">No SDG Mapping</span>
+=======
+                <span className="text-sm text-muted-foreground">
+                  No SDG Mapping
+                </span>
+>>>>>>> b78145214529fd26c277cf44d102546f446f9ed5
               )}
             </div>
           </div>

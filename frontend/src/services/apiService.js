@@ -46,7 +46,7 @@ export const fetchSDGData = async (sdgNumber) => {
   }
 };
 
-export const uploadPDF = async (file, extraPrompt) => {
+export const uploadPDF = async (file, extraPrompt, companyId) => {
   if (!file) {
     alert("Please select a PDF file first!");
     return false;
@@ -55,23 +55,24 @@ export const uploadPDF = async (file, extraPrompt) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("extra_prompt", extraPrompt);
+  formData.append("company_id", companyId);
 
   try {
     const token = localStorage.getItem("access_token");
-    const response = await fetch(
+    const response = await axios.post(
       "http://127.0.0.1:8000/api/classification/upload_pdf/",
+      formData,
       {
-        method: "POST",
-        body: formData,
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       }
     );
 
-    if (response.ok) {
+    if (response.status === 200) {
       alert("PDF uploaded and processed successfully!");
-      return true;
+      return response.data;
     } else {
       console.error("Upload failed", response);
       alert("Failed to process PDF.");
