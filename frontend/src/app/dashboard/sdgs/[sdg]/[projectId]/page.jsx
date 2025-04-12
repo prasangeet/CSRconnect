@@ -242,7 +242,7 @@ function ProjectDashboard() {
 
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Organization:</span>
+                    <span className="text-muted-foreground">Company:</span>
                     <span className="font-medium">
                       {project.company_name || noInfo}
                     </span>

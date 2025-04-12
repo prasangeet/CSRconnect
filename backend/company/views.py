@@ -104,7 +104,7 @@ def add_csr_policy(request, company_id):
 @api_view(['DELETE'])
 def remove_csr_policy(request, company_id):
     company = get_object_or_404(CompanyDetails, id=company_id)
-
+    
     if not company.csr_policy:
         return Response({"error": "No CSR policy to remove."}, status=status.HTTP_400_BAD_REQUEST)
 
