@@ -1,36 +1,37 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 function Login() {
   const router = useRouter();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   // Function to check if the access token is valid
   const checkAuthStatus = async () => {
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = localStorage.getItem("access_token");
     if (!accessToken) return;
 
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/users/me/', {
+      const response = await axios.get(`${BASE_URL}/api/users/me/`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (response.status === 200) {
-        console.log('Valid token, redirecting to dashboard...');
-        router.push('/dashboard');
+        console.log("Valid token, redirecting to dashboard...");
+        router.push("/dashboard");
       }
     } catch (err) {
-      console.warn('Invalid or expired token, forcing login...');
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      console.warn("Invalid or expired token, forcing login...");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
     }
   };
 
@@ -42,35 +43,35 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/users/login/', {
+      const response = await axios.post(`${BASE_URL}/api/users/login/`, {
         username,
         password,
       });
 
       const { access, refresh } = response.data;
-      localStorage.setItem('access_token', access);
-      localStorage.setItem('refresh_token', refresh);
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("refresh_token", refresh);
 
       // Show success toast notification with custom styling
-      toast.success('Login successful!', {
-        description: 'Welcome back to CSR Connect',
+      toast.success("Login successful!", {
+        description: "Welcome back to CSR Connect",
         duration: 3000,
-        icon: '👋',
+        icon: "👋",
       });
 
-      console.log('Login successful! Redirecting...');
-      setTimeout(() => router.push('/dashboard'), 1000);
+      console.log("Login successful! Redirecting...");
+      setTimeout(() => router.push("/dashboard"), 1000);
     } catch (err) {
-      setError('Invalid credentials, please try again');
+      setError("Invalid credentials, please try again");
       // Show error toast notification with custom styling
-      toast.error('Login failed', {
-        description: 'Invalid credentials, please try again',
+      toast.error("Login failed", {
+        description: "Invalid credentials, please try again",
         duration: 3000,
       });
-      console.error('Login failed:', err);
+      console.error("Login failed:", err);
     } finally {
       setLoading(false);
     }
@@ -122,9 +123,7 @@ function Login() {
             />
           </div>
           {error && (
-            <div className="mb-4 text-red-500 text-sm text-center">
-              {error}
-            </div>
+            <div className="mb-4 text-red-500 text-sm text-center">{error}</div>
           )}
           <button
             type="submit"
@@ -135,10 +134,10 @@ function Login() {
           </button>
           <div className="mt-4 text-center">
             <p className="text-gray-600">
-              Don't have an account?{' '}
-              <span 
+              Don't have an account?{" "}
+              <span
                 className="text-blue-600 cursor-pointer hover:underline"
-                onClick={() => router.push('/register')}
+                onClick={() => router.push("/register")}
               >
                 Register
               </span>

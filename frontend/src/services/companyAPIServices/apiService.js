@@ -1,10 +1,13 @@
 import axios from "axios";
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+// Add company by name
 export const addCompany_byName = async (companyName) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      "http://localhost:8000/api/company/add_company_by_name/",
+      `${BASE_URL}/api/company/add_company_by_name/`,
       { name: companyName },
       {
         headers: {
@@ -15,7 +18,7 @@ export const addCompany_byName = async (companyName) => {
     );
 
     if (response.status === 201) {
-      return response.data; // Return the new company data
+      return response.data;
     } else {
       console.error("Failed to create company:", response.statusText);
       return null;
@@ -26,13 +29,7 @@ export const addCompany_byName = async (companyName) => {
   }
 };
 
-/**
- * Upload a CSR policy PDF file for a specific company
- * @param {number} companyId - The ID of the company
- * @param {File} file - The PDF file to upload
- * @param {string} policyName - Optional name/title for the policy
- * @returns {Promise<Object>} - The response data from the server
- */
+// Upload a CSR policy PDF
 export const uploadCSRPolicy = async (companyId, file, policyName = "") => {
   if (!file) {
     throw new Error("Please select a PDF file first!");
@@ -44,15 +41,12 @@ export const uploadCSRPolicy = async (companyId, file, policyName = "") => {
 
   const formData = new FormData();
   formData.append("csr_policy", file);
-
-  if (policyName) {
-    formData.append("policy_name", policyName);
-  }
+  if (policyName) formData.append("policy_name", policyName);
 
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://localhost:8000/api/company/add_csr_policy/${companyId}`,
+      `${BASE_URL}/api/company/add_csr_policy/${companyId}`,
       formData,
       {
         headers: {
@@ -73,11 +67,12 @@ export const uploadCSRPolicy = async (companyId, file, policyName = "") => {
   }
 };
 
+// Remove CSR policy
 export const deleteCSRPolicy = async (companyId) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.delete(
-      `http://localhost:8000/api/company/remove_csr_policy/${companyId}`,
+      `${BASE_URL}/api/company/remove_csr_policy/${companyId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -96,11 +91,12 @@ export const deleteCSRPolicy = async (companyId) => {
   }
 };
 
+// Create a company user
 export const createCompanyUser = async (companyId, userData) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://localhost:8000/api/company/${companyId}/create_user`,
+      `${BASE_URL}/api/company/${companyId}/create_user`,
       userData,
       {
         headers: {
@@ -121,40 +117,12 @@ export const createCompanyUser = async (companyId, userData) => {
   }
 };
 
-// /**
-//  * Delete a CSR policy for a specific company
-//  * @param {number} companyId - The ID of the company
-//  * @param {number} policyId - The ID of the policy to delete
-//  * @returns {Promise<Object>} - The response data from the server
-//  */
-// export const deleteCSRPolicy = async (companyId, policyId) => {
-//   try {
-//     const token = localStorage.getItem("access_token")
-//     const response = await axios.delete(
-//       `http://localhost:8000/api/company/delete_csr_policy/${companyId}/${policyId}`,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       },
-//     )
-
-//     if (response.status === 200) {
-//       return response.data
-//     } else {
-//       throw new Error("Failed to delete CSR policy")
-//     }
-//   } catch (error) {
-//     console.error("Error deleting CSR policy:", error)
-//     throw error
-//   }
-// }
-
+// Update company details
 export const updateCompanyDetails = async (companyId, data) => {
   try {
     const token = localStorage.getItem("access_token");
     const response = await axios.post(
-      `http://localhost:8000/api/company/update-company/${companyId}/`,
+      `${BASE_URL}/api/company/update-company/${companyId}/`,
       data,
       {
         headers: {

@@ -1,43 +1,44 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 function Register() {
   const router = useRouter();
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   // State for form data
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
+    username: "",
+    email: "",
+    password: "",
   });
 
   // State for submission messages
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Check if the user is already logged in
   const checkAuthStatus = async () => {
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = localStorage.getItem("access_token");
     if (!accessToken) return;
 
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/users/me/', {
+      const response = await axios.get(`${BASE_URL}/api/users/me/`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (response.status === 200) {
-        console.log('Valid token, redirecting to dashboard...');
-        router.push('/dashboard');
+        console.log("Valid token, redirecting to dashboard...");
+        router.push("/dashboard");
       }
     } catch (err) {
-      console.warn('Invalid or expired token, forcing login...');
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      console.warn("Invalid or expired token, forcing login...");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
     }
   };
 
@@ -57,45 +58,47 @@ function Register() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
     setLoading(true);
 
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/users/register/',
+        `${BASE_URL}/api/users/register/`,
         formData,
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { "Content-Type": "application/json" } }
       );
 
       if (response.status === 201) {
-        setSuccessMessage('User registered successfully!');
-        
+        setSuccessMessage("User registered successfully!");
+
         // Show success toast notification
-        toast.success('Registration successful!', {
-          description: 'Your account has been created. Redirecting to login...',
+        toast.success("Registration successful!", {
+          description: "Your account has been created. Redirecting to login...",
           duration: 3000,
         });
-        
-        setTimeout(() => router.push('/login'), 1500); // Redirect after success
+
+        setTimeout(() => router.push("/login"), 1500); // Redirect after success
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       if (error.response) {
-        const errorMsg = error.response.data.detail || 'Registration failed. Please try again.';
+        const errorMsg =
+          error.response.data.detail ||
+          "Registration failed. Please try again.";
         setErrorMessage(errorMsg);
-        
+
         // Show error toast notification
-        toast.error('Registration failed', {
+        toast.error("Registration failed", {
           description: errorMsg,
           duration: 3000,
         });
       } else {
-        setErrorMessage('Network error. Please check your connection.');
-        
+        setErrorMessage("Network error. Please check your connection.");
+
         // Show network error toast notification
-        toast.error('Network error', {
-          description: 'Please check your connection and try again.',
+        toast.error("Network error", {
+          description: "Please check your connection and try again.",
           duration: 3000,
         });
       }
@@ -184,10 +187,10 @@ function Register() {
           </button>
           <div className="mt-4 text-center">
             <p className="text-gray-600">
-              Already have an account?{' '}
-              <span 
+              Already have an account?{" "}
+              <span
                 className="text-blue-600 cursor-pointer hover:underline"
-                onClick={() => router.push('/login')}
+                onClick={() => router.push("/login")}
               >
                 Sign in
               </span>

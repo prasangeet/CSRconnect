@@ -35,11 +35,12 @@ function AddFacultyDialog({ fetchFaculty }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   // Fetch CSRF token
   useEffect(() => {
     const getCsrfToken = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/csrf/", {
+        const response = await axios.get(`${BASE_URL}/api/csrf/`, {
           withCredentials: true,
         });
         setCsrfToken(response.data.csrfToken);
@@ -141,7 +142,7 @@ function AddFacultyDialog({ fetchFaculty }) {
       setSuccess(false);
 
       await axios.post(
-        "http://localhost:8000/api/faculty/add/",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/faculty/add/`,
         submitFormData,
         {
           headers: {
@@ -290,7 +291,7 @@ function AddFacultyDialog({ fetchFaculty }) {
 
           <div>
             <Label htmlFor="sdg_contributions" className="text-sm">
-              SDG(Number) Contribution  (comma-separated numbers)
+              SDG(Number) Contribution (comma-separated numbers)
             </Label>
             <Input
               id="sdg_contributions"
