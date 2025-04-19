@@ -26,7 +26,7 @@ const data = {
     { title: "Faculties", icon: User2, link: "/dashboard/faculties" },
     { title: "Companies", icon: Building2, link: "/dashboard/companies" },
     { title: "CSR", icon: Command, link: "/dashboard/csr" },
-    { title: "Upload and Update", icon: Upload, link: "/dashboard/upload" },
+    { title: "Add Projects", icon: Upload, link: "/dashboard/upload" },
     { title: "Settings", icon: Settings, link: "/dashboard/settings" },
     { title: "Work with AI", icon: BotIcon, link: "/dashboard/chatbot" },
   ],

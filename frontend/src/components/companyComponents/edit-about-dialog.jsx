@@ -1,21 +1,40 @@
-"use client"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+"use client";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { updateCompanyDetails } from "@/services/companyAPIServices/apiService";
 
 export function EditAboutDialog({ company, onSave, open, onOpenChange }) {
   const [formData, setFormData] = useState({
     description: company?.description || "",
     location: company?.location || "",
-    website: company?.website || ""
-  })
+    website: company?.website || "",
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSave({ ...company, ...formData })
-  }
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const updated = await updateCompanyDetails(company.id, formData);
+      onSave({ ...company, ...updated.company }); // Ensure you handle updated structure
+      onOpenChange(false);
+    } catch (err) {
+      console.error("Error updating company:", err);
+      // You can show toast or error UI here
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -28,7 +47,9 @@ export function EditAboutDialog({ company, onSave, open, onOpenChange }) {
             <label className="text-sm font-medium">Description</label>
             <Textarea
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Company description"
               className="min-h-[100px]"
             />
@@ -37,7 +58,9 @@ export function EditAboutDialog({ company, onSave, open, onOpenChange }) {
             <label className="text-sm font-medium">Location</label>
             <Input
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, location: e.target.value })
+              }
               placeholder="Company location"
             />
           </div>
@@ -45,15 +68,19 @@ export function EditAboutDialog({ company, onSave, open, onOpenChange }) {
             <label className="text-sm font-medium">Website</label>
             <Input
               value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, website: e.target.value })
+              }
               placeholder="Company website"
             />
           </div>
           <DialogFooter>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

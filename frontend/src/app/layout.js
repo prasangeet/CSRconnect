@@ -64,7 +64,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased h-full`}>
+      <body className={`${poppins.className} antialiased h-full`}>
         <Toaster />
         <main>{children}</main>
       </body>

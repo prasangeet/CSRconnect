@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { fetchCompany } from "@/services/apiService";
-import EditCompanyDialog from "@/components/edit-company-dialog";
+import EditCompanyDialog from "@/components/companyComponents/edit-company-dialog";
 import { getSDGColor } from "@/lib/sdg-utils";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,8 +58,10 @@ function CompanyPage() {
       );
   };
 
-  const handleCompanyUpdate = (updatedCompany) => {
-    setCompany(updatedCompany);
+  const handleCompanyUpdate = async () => {
+    setLoading(true);
+    await loadCompanyData();
+    setLoading(false);
   };
 
   const getProjectStatusColor = (status) => {
@@ -159,13 +161,13 @@ function CompanyPage() {
             <Card className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-semibold">About</h2>
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setEditAboutOpen(true)}
                 >
                   <Edit className="h-4 w-4" />
-                </Button>
+                </Button> */}
               </div>
               <p className="text-muted-foreground mb-6">
                 {company.description || "No description available"}

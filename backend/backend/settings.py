@@ -28,14 +28,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-exohtv+jz#&#0dta5fxpzz6gsb_e+#ip6bl%kqzzho3q&19=^z'
+SECRET_KEY = os.getenv("SECRET_KEY")
+if SECRET_KEY is None:
+    raise ValueError("Secret key not set")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if(GEMINI_API_KEY == None):
     raise ValueError("GEMINI_API_KEY is not set in .env file")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ["*"]
 

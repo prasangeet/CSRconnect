@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { Edit, Loader2, Pencil } from "lucide-react";
 import axios from "axios";
-
+import { updateCompanyDetails } from "@/services/companyAPIServices/apiService";
+  
 export default function EditCompanyDialog({ company, onUpdate }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,22 +35,9 @@ export default function EditCompanyDialog({ company, onUpdate }) {
   const onSubmit = async (data) => {
     try {
       setIsSubmitting(true);
-      const token = localStorage.getItem("access_token");
-      const response = await axios.put(
-        `http://localhost:8000/api/company/update-company/${company.id}/`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        onUpdate(response.data);
-        setIsOpen(false);
-      }
+      const updatedCompany = await updateCompanyDetails(company.id, data);
+      onUpdate(updatedCompany);
+      setIsOpen(false);
     } catch (error) {
       console.error("Error updating company:", error);
     } finally {

@@ -77,3 +77,9 @@ class CompanyProjectSerializer(serializers.ModelSerializer):
             "csr_policy",  # ✅ Optional
             "project_initiatives",
         ]
+
+
+class CompanyEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyDetails
+        fields = ["name","industry", "description", "location", "website"]

@@ -6,6 +6,7 @@ django-cors-headers>=4.3  # CORS Handling
 django-environ>=0.11.2  # Environment Variable Management
 djangorestframework-simplejwt>=5.3  # JWT Authentication
 PyJWT>=2.8  # JSON Web Token Support
+gunicorn
 
 # -------------------- Google Gemini AI SDK -------------------- #
 # google-generativeai>=0.5.0

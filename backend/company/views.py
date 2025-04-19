@@ -5,7 +5,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 import cloudinary.uploader
 from .models import CompanyDetails
-from .serializers import CompanyDetailsSerializer, CompanyCreateSerializer, CompanyProjectSerializer
+from .serializers import CompanyDetailsSerializer, CompanyCreateSerializer, CompanyProjectSerializer, CompanyEditSerializer
 
 @api_view(["POST"])
 def add_company_by_name(request):
@@ -47,23 +47,19 @@ def add_company(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["POST"])
-@parser_classes([MultiPartParser, FormParser])
 def update_company_details(request, company_id):
     company = get_object_or_404(CompanyDetails, id=company_id)
-    serializer = CompanyCreateSerializer(company, data=request.data, partial=True)
+    serializer = CompanyEditSerializer(company, data=request.data, partial=True)
+    
     if serializer.is_valid():
-        logo_file = request.FILES.get("logo")
-        if logo_file:
-            upload_result = cloudinary.uploader.upload(logo_file, folder="company_logos/")
-            serializer.validated_data["logo"] = upload_result.get("secure_url")
-
-        company = serializer.save()
+        serializer.save()
         return Response({
-            "message": "Company updated successfully",
-            "company": {"id": company.id, "name": company.name, "logo": company.logo}
+            "message": "Company details updated successfully.",
+            "company": serializer.data
         }, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 def fetch_company_projects(request, company_id):
