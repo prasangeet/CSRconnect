@@ -121,6 +121,22 @@ export const fetchFacultyData = async () => {
   }
 };
 
+export const fetchFacultyById = async (facultyId) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    const response = await axios.get(`${BASE_URL}/api/faculty/getfaculty/${facultyId}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (err) {
+    console.error("Error fetching faculty by ID:", err);
+    return null;
+  }
+}
+
 // Add a new company
 export const addCompany = async (formData) => {
   try {

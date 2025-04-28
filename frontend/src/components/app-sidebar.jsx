@@ -20,10 +20,10 @@ const { Home, Folder, PieChart, Command, Settings, Upload, Paperclip, File, Buil
 const data = {
   navMain: [
     { title: "Dashboard", icon: Home, link: "/dashboard" },
-    { title: "Blogs", icon: Paperclip , link: "/dashboard/blogs" },
-    { title: "My Projects", icon: Folder, link: "/dashboard/myprojects" },
+    // { title: "Blogs", icon: Paperclip , link: "/dashboard/blogs" },
+    // { title: "My Projects", icon: Folder, link: "/dashboard/myprojects" },
     { title: "SDGs", icon: PieChart, link: "/dashboard/sdgs" },
-    { title: "Faculties", icon: User2, link: "/dashboard/faculties" },
+    { title: "Faculty", icon: User2, link: "/dashboard/faculties" },
     { title: "Companies", icon: Building2, link: "/dashboard/companies" },
     { title: "CSR", icon: Command, link: "/dashboard/csr" },
     { title: "Add Projects", icon: Upload, link: "/dashboard/upload" },

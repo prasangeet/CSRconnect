@@ -7,7 +7,9 @@ import {
   GraduationCap,
   Mail,
   Phone,
+  User
 } from "lucide-react";
+import Link from "next/link";
 
 function FacultyCard({ faculty }) {
   return (
@@ -106,6 +108,22 @@ function FacultyCard({ faculty }) {
                 </span>
               )}
             </div>
+          </div>
+          
+          {/* View Profile Button */}
+          <div className="pt-4">
+            <Button 
+              className="w-full flex items-center justify-center gap-2 transition-all hover:translate-y-[-2px]" 
+              asChild
+            >
+              <Link
+                href={`/dashboard/faculties/${faculty.id}`} 
+                className="flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                View Profile
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
