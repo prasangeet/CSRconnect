@@ -181,6 +181,3 @@ Want to contribute?
 📧 **Email**: b23ch1033@iitj.ac.in 
 🌐 **Website**: prasangeetdongre.vercel.app  
 
----
-
-This **README** gives a **detailed overview** of your project, from **setup** to **features** and **API usage**. Do you want any modifications or additions? 🚀
