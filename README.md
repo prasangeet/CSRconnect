@@ -179,5 +179,6 @@ Want to contribute?
 
 💼 **Project Owner**:@prasangeet
 📧 **Email**: b23ch1033@iitj.ac.in 
-🌐 **Website**: prasangeetdongre.vercel.app  
+🌐 **Website**: https://prasangeetdongre.vercel.app  
+
 
